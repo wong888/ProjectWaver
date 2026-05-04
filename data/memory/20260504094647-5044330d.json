@@ -1,0 +1,769 @@
+{
+  "saved_at": "2026-05-04T09:46:47",
+  "state": {
+    "session_id": "20260504094647-5044330d",
+    "jd_text": "Python后端工程师，要求RAG、Milvus、Docker、可观测性",
+    "personal_stack": "Python LangGraph Milvus FastAPI Docker",
+    "target_level": "中级",
+    "human_constraints": {
+      "project_name": "Tool测试项目",
+      "highlight_focus": "真实tool invocation",
+      "forbidden_directions": "不编造"
+    },
+    "attack_human_decision": {
+      "decision": "允许自动修复",
+      "note": "验证tool"
+    },
+    "jd_profile": {
+      "target_role": "后端开发工程师",
+      "seniority": "中级",
+      "required_capabilities": [
+        "Python",
+        "FastAPI",
+        "Docker",
+        "Milvus",
+        "LangGraph",
+        "RAG",
+        "可观测性"
+      ],
+      "business_scenes": [
+        "招聘匹配",
+        "内容平台",
+        "交易订单",
+        "企业内部效率工具"
+      ],
+      "risk_notes": [
+        "不要编造真实线上用户量",
+        "优先选择能本地复现和压测的场景"
+      ]
+    },
+    "rag_context": [
+      {
+        "doc_id": "927d0df413d7d8c1821f428e83153ae69faf75b3",
+        "title": "production backend playbook",
+        "source": "production_backend_playbook.md",
+        "chunk_index": 0,
+        "content": "# 真实后端项目打磨知识库\n\n## 架构表达\n\n后端简历项目不要只写技术名词，要讲清楚业务入口、核心对象、状态流转、异常分支和数据一致性边界。一个可讲的项目通常包含接口层、服务编排层、数据访问层、异步任务、缓存、日志指标、告警与回滚方案。\n\n## RAG 与 Agent 落地\n\nRAG 不等于把知识拼进 prompt。工程上需要说明文档切分、embedding 模型、向量库 schema、检索 topK、命中文档来源、相似度分数、失败降级和人工校验。Agent 编排需要说明全局状态、节点职责、条件路由、最大迭代次数和可恢复性。\n\n## 面试攻防\n\n面试官常追问：LLM 超时怎么办、JSON 不合法怎么办、向量库不可用怎么办、重复提交怎么处理、如何避免输出虚假经历、如何证明结果不是模板、日志如何定位某轮 Agent 的错误。\n\n## 性能与稳定性\n\n本地项目可以做小规模压测，但不能直接写大厂线上指标。合理表达是：使用压测脚本验证接口耗时、记录 p95/p99、限制最大迭代次数、给 LLM 调用设置超时和 fallback、把慢查询或异常写入结构化日志。\n\n## 部署运维\n\n轻量部署可以采用 Docker Compose 管理 Streamlit、Milvus、etcd、MinIO。需要说明端口冲突处理、容器健康检查、数据卷持久化、环境变量隔离和重启恢复策略。",
+        "score": 0.6395,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "4006de5781b10b6b26aaa086fcf0a0ebedc6e326",
+        "title": "高质量后端项目结构",
+        "source": "seed://backend-structure",
+        "chunk_index": 1,
+        "content": "可上线项目需要包含接口层、服务层、数据层、异步任务、缓存、日志、指标、告警、错误处理、容量估算与回滚方案。",
+        "score": 0.583,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "ec57365e6304d99a0fbe807b66b081954e4d111c",
+        "title": "面试攻防常见漏洞",
+        "source": "seed://interview-attack",
+        "chunk_index": 2,
+        "content": "面试官会追问幂等性、限流降级、缓存击穿、消息重复消费、数据库索引、事务边界、故障恢复、部署发布和团队协作。",
+        "score": 0.5263,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "a3d82741f4a1b058885df32dfd1424b9b7fde0a8",
+        "title": "互联网后端简历项目边界",
+        "source": "seed://resume-boundary",
+        "chunk_index": 0,
+        "content": "简历项目应围绕真实业务问题、稳定性、性能、数据一致性、灰度发布、监控告警展开，避免声称支撑无法证明的超大规模流量。",
+        "score": 0.5045,
+        "retrieval_mode": "local"
+      }
+    ],
+    "project_blueprint": {
+      "project_name": "Tool测试项目",
+      "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+      "architecture": {
+        "frontend": "Streamlit 管理台用于演示流程和结果验收",
+        "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+        "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+        "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+      },
+      "modules": [
+        "JD 能力抽取",
+        "项目架构共创",
+        "简历包装",
+        "攻防面试",
+        "迭代修复",
+        "合规风控",
+        "模拟面试验收"
+      ],
+      "engineering_highlights": [
+        "LangGraph 有状态多 Agent 编排",
+        "Human-in-the-Loop 人工卡点控制架构方向",
+        "Milvus 本地向量库轻量 RAG 降低幻觉",
+        "JSON 版本化记忆与链路日志",
+        "三轮漏洞驱动迭代闭环"
+      ],
+      "explicitly_avoided": "不编造",
+      "matched_capabilities": [
+        "Python",
+        "FastAPI",
+        "Docker",
+        "Milvus",
+        "LangGraph",
+        "RAG",
+        "可观测性"
+      ]
+    },
+    "resume_package": {
+      "resume_project_paragraph": "Tool测试项目：基于 Python、LangGraph、Milvus 与 Streamlit 实现岗位 JD 解析、项目架构共创、攻防面试、迭代修复和合规收口的多 Agent 闭环系统。本人负责全链路状态编排、轻量 RAG、Human-in-the-Loop 卡点、JSON 持久化记忆和可观测日志建设，通过三轮漏洞驱动迭代将项目表达沉淀为简历段落、架构说明和面试应答话术。",
+      "architecture_summary": [
+        "前端 Streamlit 负责表单输入、人工介入、结果渲染与模拟面试。",
+        "LangGraph StateGraph 串联六个 Agent，所有节点共享全局状态并输出结构化 JSON。",
+        "Milvus 保存工程知识片段，LLM 生成前先检索约束，降低脱离真实场景的幻觉。",
+        "本地 JSON 保存每次迭代版本，日志可追踪每个 Agent 的决策依据。"
+      ],
+      "interview_talking_points": [
+        "为什么选择 LangGraph：需要显式状态、条件路由和可恢复的多 Agent 工作流。",
+        "如何降低幻觉：RAG 检索工程知识、人工卡点约束技术范围、合规 Agent 删除不可证明表述。",
+        "如何体现上线能力：包含日志、版本化记忆、Docker 本地部署、错误降级和可观测性。"
+      ],
+      "metrics_claims": [
+        "本地压测和演示指标需由用户后续实际补充，不默认编造。"
+      ]
+    },
+    "attack_report": {
+      "round": 3,
+      "severity": "medium",
+      "architecture_vulnerabilities": [
+        "Milvus 不可用时是否有降级策略和用户提示？",
+        "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+      ],
+      "landing_vulnerabilities": [
+        "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+        "简历中的压测指标不能直接写死，必须来自真实验证。"
+      ],
+      "logic_vulnerabilities": [
+        "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+        "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+      ],
+      "questions": [
+        "如果向量库宕机，系统还能输出什么级别的结果？",
+        "你如何证明这个项目不是简单 prompt 拼接？",
+        "线上出现 LLM 响应超时，你会如何降级？"
+      ]
+    },
+    "iteration_round": 3,
+    "iteration_history": [
+      {
+        "round": 1,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 1,
+          "severity": "high",
+          "architecture_vulnerabilities": [
+            "Milvus 不可用时是否有降级策略和用户提示？",
+            "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+          ],
+          "landing_vulnerabilities": [
+            "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+            "简历中的压测指标不能直接写死，必须来自真实验证。"
+          ],
+          "logic_vulnerabilities": [
+            "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+            "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+          ],
+          "questions": [
+            "如果向量库宕机，系统还能输出什么级别的结果？",
+            "你如何证明这个项目不是简单 prompt 拼接？",
+            "线上出现 LLM 响应超时，你会如何降级？"
+          ]
+        }
+      },
+      {
+        "round": 2,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 2,
+          "severity": "medium",
+          "architecture_vulnerabilities": [
+            "Milvus 不可用时是否有降级策略和用户提示？",
+            "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+          ],
+          "landing_vulnerabilities": [
+            "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+            "简历中的压测指标不能直接写死，必须来自真实验证。"
+          ],
+          "logic_vulnerabilities": [
+            "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+            "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+          ],
+          "questions": [
+            "如果向量库宕机，系统还能输出什么级别的结果？",
+            "你如何证明这个项目不是简单 prompt 拼接？",
+            "线上出现 LLM 响应超时，你会如何降级？"
+          ]
+        }
+      },
+      {
+        "round": 3,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "真实性能数据仍需用户在本机或目标环境压测后补充。"
+        ],
+        "source_attack": {
+          "round": 3,
+          "severity": "medium",
+          "architecture_vulnerabilities": [
+            "Milvus 不可用时是否有降级策略和用户提示？",
+            "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+          ],
+          "landing_vulnerabilities": [
+            "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+            "简历中的压测指标不能直接写死，必须来自真实验证。"
+          ],
+          "logic_vulnerabilities": [
+            "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+            "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+          ],
+          "questions": [
+            "如果向量库宕机，系统还能输出什么级别的结果？",
+            "你如何证明这个项目不是简单 prompt 拼接？",
+            "线上出现 LLM 响应超时，你会如何降级？"
+          ]
+        }
+      }
+    ],
+    "compliance_report": {
+      "compliance_status": "pass_with_notes",
+      "removed_or_softened_claims": [
+        "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+        "将所有性能收益表述为可验证方法或待压测指标。"
+      ],
+      "safe_resume_rules": [
+        "只说自己实现过的模块，不冒充真实线上公司项目。",
+        "指标必须来自本地压测、日志截图或演示环境。",
+        "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+      ]
+    },
+    "final_output": {
+      "jd_profile": {
+        "target_role": "后端开发工程师",
+        "seniority": "中级",
+        "required_capabilities": [
+          "Python",
+          "FastAPI",
+          "Docker",
+          "Milvus",
+          "LangGraph",
+          "RAG",
+          "可观测性"
+        ],
+        "business_scenes": [
+          "招聘匹配",
+          "内容平台",
+          "交易订单",
+          "企业内部效率工具"
+        ],
+        "risk_notes": [
+          "不要编造真实线上用户量",
+          "优先选择能本地复现和压测的场景"
+        ]
+      },
+      "project_blueprint": {
+        "project_name": "Tool测试项目",
+        "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+        "architecture": {
+          "frontend": "Streamlit 管理台用于演示流程和结果验收",
+          "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+          "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+          "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+        },
+        "modules": [
+          "JD 能力抽取",
+          "项目架构共创",
+          "简历包装",
+          "攻防面试",
+          "迭代修复",
+          "合规风控",
+          "模拟面试验收"
+        ],
+        "engineering_highlights": [
+          "LangGraph 有状态多 Agent 编排",
+          "Human-in-the-Loop 人工卡点控制架构方向",
+          "Milvus 本地向量库轻量 RAG 降低幻觉",
+          "JSON 版本化记忆与链路日志",
+          "三轮漏洞驱动迭代闭环"
+        ],
+        "explicitly_avoided": "不编造",
+        "matched_capabilities": [
+          "Python",
+          "FastAPI",
+          "Docker",
+          "Milvus",
+          "LangGraph",
+          "RAG",
+          "可观测性"
+        ]
+      },
+      "resume_package": {
+        "resume_project_paragraph": "Tool测试项目：基于 Python、LangGraph、Milvus 与 Streamlit 实现岗位 JD 解析、项目架构共创、攻防面试、迭代修复和合规收口的多 Agent 闭环系统。本人负责全链路状态编排、轻量 RAG、Human-in-the-Loop 卡点、JSON 持久化记忆和可观测日志建设，通过三轮漏洞驱动迭代将项目表达沉淀为简历段落、架构说明和面试应答话术。",
+        "architecture_summary": [
+          "前端 Streamlit 负责表单输入、人工介入、结果渲染与模拟面试。",
+          "LangGraph StateGraph 串联六个 Agent，所有节点共享全局状态并输出结构化 JSON。",
+          "Milvus 保存工程知识片段，LLM 生成前先检索约束，降低脱离真实场景的幻觉。",
+          "本地 JSON 保存每次迭代版本，日志可追踪每个 Agent 的决策依据。"
+        ],
+        "interview_talking_points": [
+          "为什么选择 LangGraph：需要显式状态、条件路由和可恢复的多 Agent 工作流。",
+          "如何降低幻觉：RAG 检索工程知识、人工卡点约束技术范围、合规 Agent 删除不可证明表述。",
+          "如何体现上线能力：包含日志、版本化记忆、Docker 本地部署、错误降级和可观测性。"
+        ],
+        "metrics_claims": [
+          "本地压测和演示指标需由用户后续实际补充，不默认编造。"
+        ]
+      },
+      "attack_report": {
+        "round": 3,
+        "severity": "medium",
+        "architecture_vulnerabilities": [
+          "Milvus 不可用时是否有降级策略和用户提示？",
+          "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+        ],
+        "landing_vulnerabilities": [
+          "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+          "简历中的压测指标不能直接写死，必须来自真实验证。"
+        ],
+        "logic_vulnerabilities": [
+          "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+          "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+        ],
+        "questions": [
+          "如果向量库宕机，系统还能输出什么级别的结果？",
+          "你如何证明这个项目不是简单 prompt 拼接？",
+          "线上出现 LLM 响应超时，你会如何降级？"
+        ]
+      },
+      "iteration_history": [
+        {
+          "round": 1,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 1,
+            "severity": "high",
+            "architecture_vulnerabilities": [
+              "Milvus 不可用时是否有降级策略和用户提示？",
+              "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+            ],
+            "landing_vulnerabilities": [
+              "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+              "简历中的压测指标不能直接写死，必须来自真实验证。"
+            ],
+            "logic_vulnerabilities": [
+              "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+              "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+            ],
+            "questions": [
+              "如果向量库宕机，系统还能输出什么级别的结果？",
+              "你如何证明这个项目不是简单 prompt 拼接？",
+              "线上出现 LLM 响应超时，你会如何降级？"
+            ]
+          }
+        },
+        {
+          "round": 2,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 2,
+            "severity": "medium",
+            "architecture_vulnerabilities": [
+              "Milvus 不可用时是否有降级策略和用户提示？",
+              "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+            ],
+            "landing_vulnerabilities": [
+              "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+              "简历中的压测指标不能直接写死，必须来自真实验证。"
+            ],
+            "logic_vulnerabilities": [
+              "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+              "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+            ],
+            "questions": [
+              "如果向量库宕机，系统还能输出什么级别的结果？",
+              "你如何证明这个项目不是简单 prompt 拼接？",
+              "线上出现 LLM 响应超时，你会如何降级？"
+            ]
+          }
+        },
+        {
+          "round": 3,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "真实性能数据仍需用户在本机或目标环境压测后补充。"
+          ],
+          "source_attack": {
+            "round": 3,
+            "severity": "medium",
+            "architecture_vulnerabilities": [
+              "Milvus 不可用时是否有降级策略和用户提示？",
+              "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+            ],
+            "landing_vulnerabilities": [
+              "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+              "简历中的压测指标不能直接写死，必须来自真实验证。"
+            ],
+            "logic_vulnerabilities": [
+              "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+              "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+            ],
+            "questions": [
+              "如果向量库宕机，系统还能输出什么级别的结果？",
+              "你如何证明这个项目不是简单 prompt 拼接？",
+              "线上出现 LLM 响应超时，你会如何降级？"
+            ]
+          }
+        }
+      ],
+      "compliance_report": {
+        "compliance_status": "pass_with_notes",
+        "removed_or_softened_claims": [
+          "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+          "将所有性能收益表述为可验证方法或待压测指标。"
+        ],
+        "safe_resume_rules": [
+          "只说自己实现过的模块，不冒充真实线上公司项目。",
+          "指标必须来自本地压测、日志截图或演示环境。",
+          "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+        ]
+      },
+      "trace_logs": [
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "jd_parser",
+          "event": "structured_jd",
+          "detail": {
+            "capabilities": [
+              "Python",
+              "FastAPI",
+              "Docker",
+              "Milvus",
+              "LangGraph",
+              "RAG",
+              "可观测性"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "human_scope_gate",
+          "event": "scope_constraints_resumed",
+          "detail": {
+            "human_constraints": {
+              "project_name": "Tool测试项目",
+              "highlight_focus": "真实tool invocation",
+              "forbidden_directions": "不编造"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "architecture_cocreation",
+          "event": "blueprint_created",
+          "detail": {
+            "project_name": "Tool测试项目"
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "resume_packaging",
+          "event": "resume_packaged",
+          "detail": {
+            "talking_points": 3
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "senior_interviewer",
+          "event": "attack_report_created",
+          "detail": {
+            "round": 1,
+            "severity": "high"
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_resumed",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "验证tool"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "iteration_repair",
+          "event": "repair_iteration_applied",
+          "detail": {
+            "round": 1,
+            "fixed": 4
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "senior_interviewer",
+          "event": "attack_report_created",
+          "detail": {
+            "round": 2,
+            "severity": "medium"
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "验证tool"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "iteration_repair",
+          "event": "repair_iteration_applied",
+          "detail": {
+            "round": 2,
+            "fixed": 4
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "senior_interviewer",
+          "event": "attack_report_created",
+          "detail": {
+            "round": 3,
+            "severity": "medium"
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "验证tool"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "iteration_repair",
+          "event": "repair_iteration_applied",
+          "detail": {
+            "round": 3,
+            "fixed": 4
+          }
+        },
+        {
+          "ts": "2026-05-04 09:46:47",
+          "agent": "compliance_risk",
+          "event": "compliance_closed",
+          "detail": {
+            "status": "pass_with_notes"
+          }
+        }
+      ]
+    },
+    "current_agent": "compliance_risk",
+    "logs": [
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "jd_parser",
+        "event": "structured_jd",
+        "detail": {
+          "capabilities": [
+            "Python",
+            "FastAPI",
+            "Docker",
+            "Milvus",
+            "LangGraph",
+            "RAG",
+            "可观测性"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "human_scope_gate",
+        "event": "scope_constraints_resumed",
+        "detail": {
+          "human_constraints": {
+            "project_name": "Tool测试项目",
+            "highlight_focus": "真实tool invocation",
+            "forbidden_directions": "不编造"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "architecture_cocreation",
+        "event": "blueprint_created",
+        "detail": {
+          "project_name": "Tool测试项目"
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "resume_packaging",
+        "event": "resume_packaged",
+        "detail": {
+          "talking_points": 3
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "senior_interviewer",
+        "event": "attack_report_created",
+        "detail": {
+          "round": 1,
+          "severity": "high"
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_resumed",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "验证tool"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "iteration_repair",
+        "event": "repair_iteration_applied",
+        "detail": {
+          "round": 1,
+          "fixed": 4
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "senior_interviewer",
+        "event": "attack_report_created",
+        "detail": {
+          "round": 2,
+          "severity": "medium"
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "验证tool"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "iteration_repair",
+        "event": "repair_iteration_applied",
+        "detail": {
+          "round": 2,
+          "fixed": 4
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "senior_interviewer",
+        "event": "attack_report_created",
+        "detail": {
+          "round": 3,
+          "severity": "medium"
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "验证tool"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "iteration_repair",
+        "event": "repair_iteration_applied",
+        "detail": {
+          "round": 3,
+          "fixed": 4
+        }
+      },
+      {
+        "ts": "2026-05-04 09:46:47",
+        "agent": "compliance_risk",
+        "event": "compliance_closed",
+        "detail": {
+          "status": "pass_with_notes"
+        }
+      }
+    ],
+    "errors": []
+  }
+}

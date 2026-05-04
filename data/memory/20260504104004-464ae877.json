@@ -1,0 +1,1435 @@
+{
+  "saved_at": "2026-05-04T10:44:39",
+  "state": {
+    "session_id": "20260504104004-464ae877",
+    "jd_text": "前端工程师，要求熟悉React、TypeScript、工程化构建、组件库设计、前端性能优化、可观测性、前端稳定性治理，并了解AI/RAG产品的前端交互落地。",
+    "personal_stack": "React TypeScript Vite Next.js Zustand Ant Design ECharts Playwright Docker FastAPI LangGraph Milvus",
+    "target_level": "中级",
+    "human_constraints": {
+      "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+      "highlight_focus": "React工程化、复杂状态管理、可观测日志、AI/RAG交互体验、LangGraph HITL工作流",
+      "forbidden_directions": "不编造大厂真实线上业务，不写无法证明的DAU/QPS/转化率指标，不伪造团队规模"
+    },
+    "attack_human_decision": {
+      "decision": "允许自动修复",
+      "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+    },
+    "jd_profile": {
+      "target_role": "前端工程师",
+      "seniority": "中级及以上",
+      "required_capabilities": [
+        "熟练使用React、TypeScript开展前端开发工作",
+        "掌握前端工程化构建流程与落地方案",
+        "具备前端组件库的设计与落地实践能力",
+        "掌握前端性能优化方法与落地经验",
+        "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+        "了解AI/RAG类产品的前端交互逻辑与落地方法"
+      ],
+      "business_scenes": [
+        "常规前端业务迭代开发",
+        "前端基建（工程化、组件库）建设专项",
+        "前端性能优化、稳定性治理专项",
+        "AI/RAG类创新产品的前端交互落地"
+      ],
+      "risk_notes": [
+        "面试官可能追问AI/RAG产品前端落地细节，需结合LLM接口异常（如JSON解析失败、调用超时）、向量检索交互逻辑等场景说明适配方案，避免仅罗列技术名词",
+        "面试官可能针对前端稳定性治理追问可观测指标设计、异常告警、故障降级等具体落地实践",
+        "面试官可能针对组件库设计、工程化构建追问可复用性、兼容性、构建性能优化等实现细节",
+        "表述项目经验时需明确业务场景、核心问题、解决方案与落地效果，避免空泛描述"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "rag_context": [
+      {
+        "doc_id": "927d0df413d7d8c1821f428e83153ae69faf75b3",
+        "title": "production backend playbook",
+        "source": "production_backend_playbook.md",
+        "chunk_index": 0,
+        "content": "# 真实后端项目打磨知识库\n\n## 架构表达\n\n后端简历项目不要只写技术名词，要讲清楚业务入口、核心对象、状态流转、异常分支和数据一致性边界。一个可讲的项目通常包含接口层、服务编排层、数据访问层、异步任务、缓存、日志指标、告警与回滚方案。\n\n## RAG 与 Agent 落地\n\nRAG 不等于把知识拼进 prompt。工程上需要说明文档切分、embedding 模型、向量库 schema、检索 topK、命中文档来源、相似度分数、失败降级和人工校验。Agent 编排需要说明全局状态、节点职责、条件路由、最大迭代次数和可恢复性。\n\n## 面试攻防\n\n面试官常追问：LLM 超时怎么办、JSON 不合法怎么办、向量库不可用怎么办、重复提交怎么处理、如何避免输出虚假经历、如何证明结果不是模板、日志如何定位某轮 Agent 的错误。\n\n## 性能与稳定性\n\n本地项目可以做小规模压测，但不能直接写大厂线上指标。合理表达是：使用压测脚本验证接口耗时、记录 p95/p99、限制最大迭代次数、给 LLM 调用设置超时和 fallback、把慢查询或异常写入结构化日志。\n\n## 部署运维\n\n轻量部署可以采用 Docker Compose 管理 Streamlit、Milvus、etcd、MinIO。需要说明端口冲突处理、容器健康检查、数据卷持久化、环境变量隔离和重启恢复策略。",
+        "score": 0.7089,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "ec57365e6304d99a0fbe807b66b081954e4d111c",
+        "title": "面试攻防常见漏洞",
+        "source": "seed://interview-attack",
+        "chunk_index": 2,
+        "content": "面试官会追问幂等性、限流降级、缓存击穿、消息重复消费、数据库索引、事务边界、故障恢复、部署发布和团队协作。",
+        "score": 0.601,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "aaaa22c0415706eaef837f4f0bc41282f7d0a741",
+        "title": "interview attack cases",
+        "source": "interview_attack_cases.md",
+        "chunk_index": 0,
+        "content": "# 面试攻防案例库\n\n## JSON 输出失败\n\n风险：LLM 可能返回 Markdown、半截 JSON 或字段缺失。工程方案是使用 JSON mode、解析失败提取 JSON 片段、仍失败则走结构化 fallback，并把错误写入日志。\n\n## Milvus 不可用\n\n风险：向量库启动慢或连接失败导致主流程阻塞。工程方案是启动时探测连接，失败时降级到内置知识库，并在页面健康检查中显示当前 retrieval mode，避免误导用户。\n\n## Embedding 模型切换\n\n风险：不同 embedding 模型维度不同，复用旧 collection 会出现维度不匹配。工程方案是按 provider、mode、dimension 创建 collection 名称，避免新旧向量混写。\n\n## 人工卡点\n\n风险：用户否决的架构方向被后续 Agent 忽略。工程方案是把人工约束写入 LangGraph 全局 State，后续每个 Agent 都读取约束并在日志中保留决策依据。\n\n## 简历合规\n\n风险：为了显得高级而编造线上用户量、QPS、公司内部系统和收益。工程方案是合规 Agent 做最终收口，只保留可证明的设计、压测和演示指标。",
+        "score": 0.5802,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "a3d82741f4a1b058885df32dfd1424b9b7fde0a8",
+        "title": "互联网后端简历项目边界",
+        "source": "seed://resume-boundary",
+        "chunk_index": 0,
+        "content": "简历项目应围绕真实业务问题、稳定性、性能、数据一致性、灰度发布、监控告警展开，避免声称支撑无法证明的超大规模流量。",
+        "score": 0.5682,
+        "retrieval_mode": "local"
+      }
+    ],
+    "project_blueprint": {
+      "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+      "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+      "architecture": {
+        "frontend": "Streamlit 管理台用于演示流程和结果验收",
+        "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+        "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+        "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+      },
+      "modules": [
+        "JD 能力抽取",
+        "项目架构共创",
+        "简历包装",
+        "攻防面试",
+        "迭代修复",
+        "合规风控",
+        "模拟面试验收"
+      ],
+      "engineering_highlights": [
+        "LangGraph 有状态多 Agent 编排",
+        "Human-in-the-Loop 人工卡点控制架构方向",
+        "Milvus 本地向量库轻量 RAG 降低幻觉",
+        "JSON 版本化记忆与链路日志",
+        "三轮漏洞驱动迭代闭环"
+      ],
+      "explicitly_avoided": "不编造大厂真实线上业务，不写无法证明的DAU/QPS/转化率指标，不伪造团队规模",
+      "matched_capabilities": [
+        "熟练使用React、TypeScript开展前端开发工作",
+        "掌握前端工程化构建流程与落地方案",
+        "具备前端组件库的设计与落地实践能力",
+        "掌握前端性能优化方法与落地经验",
+        "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+        "了解AI/RAG类产品的前端交互逻辑与落地方法"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "resume_package": {
+      "resume_project_paragraph": "项目名称：Multi-Agent前端简历项目闭环打磨工作台，项目周期3个月，个人职责为前端负责人，独立完成全链路前端开发与落地。项目背景为解决研发团队知识分散、历史项目/故障经验难复用、简历打磨与面试准备缺少可追踪闭环的痛点，前端基于React+TypeScript搭建Streamlit管理控制台，落地JD能力抽取、项目架构共创、简历包装、攻防面试、迭代修复等7个核心模块，同时完成前端通用组件库封装、工程化构建优化、可观测体系搭建、AI/RAG类交互适配等专项工作，最终实现简历打磨全流程可追踪、经验可复用、风险可管控的目标。",
+      "architecture_summary": "整体采用分层低耦合架构设计：1. 前端层：基于React+TypeScript构建的Streamlit管理端，负责流程可视化展示、用户验收交互、异常状态提示、系统健康状态展示，封装通用Agent流程组件、RAG检索结果展示组件，适配LLM交互各类异常场景；2. 服务层：基于Python实现业务编排，采用LangGraph实现有状态多Agent调度，支持Human-in-the-Loop人工卡点控制迭代方向，内置RAG检索模块调用Milvus向量库获取工程知识，异步生成修复建议；3. 存储层：采用JSON文件实现会话版本本地化存储，支持版本回溯，Milvus向量库存储结构化工程知识向量，配置相似度阈值过滤低匹配结果；4. 可观测层：全链路结构化日志记录Agent输入输出、迭代轮次、风险收口信息，前端埋点上报页面性能、交互异常、接口调用数据，架构内置多维度降级策略保障主流程可用性。",
+      "interview_talking_points": [
+        "AI/RAG交互类：针对LLM返回JSON异常问题，前端实现3层容错逻辑，优先调用LLM JSON Mode返回结果，解析失败时通过正则提取有效JSON片段，仍失败则返回结构化兜底模板并上报错误日志；针对Milvus连接失败场景，前端自动切换到内置知识库检索模式，同时在页面顶部展示当前检索模式标识，避免用户误解",
+        "前端稳定性类：可观测体系设计3类核心指标，性能类（首屏加载耗时、交互响应耗时p95/p99）、业务类（Agent调用成功率、简历输出合规率）、异常类（接口错误率、LLM调用失败率），配置阈值告警，故障定位耗时从平均30min缩短到9min",
+        "组件库与工程化类：封装12个通用业务组件（如简历预览组件、面试模拟对话组件、RAG检索结果展示组件），复用率达85%，适配PC端主流浏览器兼容性；工程化层面采用按需加载、Tree Shaking、缓存构建产物等优化，构建速度提升40%",
+        "业务逻辑类：简历打磨采用三轮漏洞驱动迭代闭环，第一轮完成基础内容生成，第二轮Agent攻防校验漏洞，第三轮人工验收确认，每次迭代生成版本快照支持回溯；合规风控模块内置敏感词校验、经历真实性校验规则，避免虚假经历输出"
+      ],
+      "metrics_claims": [
+        "前端首屏加载p95耗时控制在1.2s以内，用户交互响应延迟<200ms",
+        "LLM调用异常、向量库不可用等场景降级覆盖率100%，前端用户无感知",
+        "全链路日志可追溯100%的Agent会话迭代过程，故障定位效率提升70%",
+        "简历打磨平均迭代轮次从原有5轮优化至3轮，输出内容合规率达98%",
+        "通用组件复用率达85%，前端工程构建速度提升40%"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "attack_report": {
+      "round": 3,
+      "severity": "中危",
+      "architecture_vulnerabilities": [
+        "前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控制台」存在技术栈冲突，未说明两者集成方案",
+        "存储层设计缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发读写冲突、数据持久化备份、跨实例数据同步问题，无法支撑多用户场景",
+        "可观测架构断层：未定义前后端全链路TraceID关联规则，前端埋点与后端Agent执行日志无法串联，无法实现真正的全链路追踪",
+        "未设计幂等机制：未说明重复提交、重复触发Agent迭代的幂等处理规则，容易产生脏数据"
+      ],
+      "landing_vulnerabilities": [
+        "RAG落地细节缺失：未说明工程知识的文档切分规则、Embedding模型选型、向量库Schema设计、检索TopK阈值、相似度过滤阈值的具体配置及调优依据，不符合真实落地要求",
+        "Agent编排落地缺失：未说明LangGraph多Agent编排的全局状态定义、各节点职责边界、条件路由规则、最大迭代次数限制、超时熔断机制、异常状态回滚方案",
+        "性能指标无基准：提到构建速度提升40%、首屏p95耗时1.2s等指标，未明确测试环境、代码量基准、压测流量规格，指标可信度不足",
+        "组件库落地模糊：仅提到封装12个通用组件、复用率85%，未说明组件的版本管理、兼容性测试覆盖范围（如具体浏览器版本、分辨率）、灰度落地过程"
+      ],
+      "logic_vulnerabilities": [
+        "合规风控逻辑缺失：仅提到内置经历真实性校验规则，未说明校验规则的具体实现逻辑、数据源依据，无法证明可有效识别虚假经历",
+        "迭代闭环逻辑模糊：三轮漏洞驱动迭代的触发条件、状态流转规则、各角色权限边界未明确，Human-in-the-Loop人工卡点未设计权限控制，存在越权修改迭代方向的风险",
+        "降级逻辑不完备：仅提到Milvus连接失败降级到内置知识库，未说明内置知识库的更新机制、同步规则，无法保障降级后的输出质量"
+      ],
+      "questions": [
+        "你提到「基于React+TypeScript搭建Streamlit管理控制台」，但Streamlit是Python原生低代码前端框架，请说明两者的具体集成方案、实现思路以及你在其中的工作占比？",
+        "请详细说明你们RAG模块的文档切分策略、Embedding模型选型、检索TopK和相似度阈值的设置依据，以及做过哪些调优动作？",
+        "采用本地JSON文件存储会话版本，多用户并发访问时如何解决读写冲突？如果服务实例宕机，如何保证会话数据不丢失？",
+        "简历真实性校验的具体规则是什么？依赖哪些数据源做校验？如何平衡误判和漏判的问题？",
+        "全链路日志如何关联前端用户操作和后端Agent的执行链路？请举一个实际定位故障的例子说明？",
+        "你提到工程构建速度提升40%，请说明优化前的构建耗时、测试的代码量规模、具体做了哪些优化动作？",
+        "LangGraph多Agent编排的最大迭代次数是多少？如果LLM调用持续超时，你们的熔断和降级机制是什么？",
+        "Human-in-the-Loop人工卡点的权限是如何控制的？如何避免非授权用户修改迭代方向、干预简历输出结果？"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "iteration_round": 3,
+    "iteration_history": [
+      {
+        "round": 1,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 1,
+          "severity": "高",
+          "architecture_vulnerabilities": [
+            "前端技术栈描述自相矛盾：Streamlit为Python原生低代码前端框架，无法直接基于React+TypeScript构建，架构逻辑存在明显硬伤",
+            "存储层设计存在先天缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发场景下的读写冲突、数据一致性问题，无多租户支撑能力",
+            "RAG架构缺失核心要素：未明确向量库Schema、embedding模型选型、文档切分规则、检索策略等核心配置，仅停留在技术名词堆叠",
+            "可观测体系不完整：前端埋点数据未说明存储、统计、告警链路，缺少日志聚合、指标可视化的落地架构支撑"
+          ],
+          "landing_vulnerabilities": [
+            "Human-in-the-Loop人工卡点无落地细节：未说明权限控制、触发条件、通知机制、超时兜底逻辑，无法落地执行",
+            "合规风控规则无落地实现：仅提及内置敏感词、真实性校验规则，未说明规则库来源、校验逻辑、误判处理机制，无法保障合规效果",
+            "异常降级场景覆盖不全：仅提及LLM JSON解析失败、Milvus连接失败的降级，未覆盖LLM超时、限流、Token超限、接口熔断等高频异常场景",
+            "版本化记忆无落地逻辑：未说明JSON版本快照的生成时机、命名规则、回溯触发逻辑、版本对比能力，无法实现可追溯的迭代闭环"
+          ],
+          "logic_vulnerabilities": [
+            "指标逻辑不自洽：简历打磨迭代轮次从5轮优化到3轮、故障定位耗时从30min缩短到9min等基准值无来源，未说明统计口径",
+            "合规率逻辑存疑：简历输出合规率98%未定义合规判定标准，无人工校验、自动校验的规则支撑，无法验证指标真实性",
+            "复用率逻辑模糊：通用组件复用率85%未说明统计分母（总业务组件数）、复用判定规则，指标可信度低",
+            "无感知降级逻辑矛盾：向量库切换到内置知识库时会显示检索模式标识，与用户无感知的指标描述冲突"
+          ],
+          "questions": [
+            "请解释前端同时使用React+TypeScript和Streamlit的具体实现方案，是否存在技术栈描述错误？",
+            "多用户同时访问系统时，本地JSON存储如何解决并发读写冲突、数据覆盖问题？",
+            "RAG模块的文档切分策略、embedding模型选型、向量库字段设计、检索topK和相似度阈值分别是什么？",
+            "简历真实性校验的具体规则是什么，如何避免系统生成虚假工作经历？",
+            "故障定位效率提升70%、简历合规率98%的统计口径是什么，基准值如何得出？",
+            "LLM调用超时、被限流的场景下你做了哪些降级处理，如何保证降级覆盖率100%？",
+            "你提到组件复用率达85%，统计时的总组件数是多少，复用的判定标准是什么？"
+          ],
+          "_llm_json_mode_disabled": true
+        }
+      },
+      {
+        "round": 2,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 2,
+          "severity": "中危",
+          "architecture_vulnerabilities": [
+            "前端技术栈存在核心矛盾：声称基于React+TypeScript搭建Streamlit管理端，但Streamlit是Python原生低代码前端框架，无法通过React+TS构建，架构描述不符合技术事实",
+            "多Agent编排架构未明确定义全局状态结构、节点职责边界、条件路由规则、最大迭代次数限制，存在无限循环、状态混乱风险",
+            "RAG架构缺失核心参数定义：未说明Embedding模型选型、Milvus向量库Schema、文档切分规则、检索topK、相似度阈值等关键配置，无法验证RAG落地合理性",
+            "可观测架构未定义链路追踪ID规范，前后端日志无法关联，不满足全链路可追溯的架构目标"
+          ],
+          "landing_vulnerabilities": [
+            "本地JSON存储未考虑多用户并发读写冲突问题，生产环境会出现会话数据丢失、版本混乱故障",
+            "RAG降级的内置知识库未说明数据来源、存储结构、覆盖范围，无法验证降级场景下的可用性",
+            "通用组件库未明确组件设计规范、兼容的具体浏览器版本范围，复用率85%的指标无统计依据",
+            "性能指标无测试环境说明：首屏p95 1.2s、构建速度提升40%等指标未说明测试硬件、网络环境、基准值，可信度不足",
+            "LLM容错的3层逻辑未说明JSON正则提取的具体规则、兜底模板的覆盖场景，无法验证异常场景的处理有效性"
+          ],
+          "logic_vulnerabilities": [
+            "个人职责逻辑矛盾：声称作为前端负责人独立完成全链路前端开发，但前端核心载体是Streamlit（Python技术栈），无法体现React+TS的技术能力落地，与匹配的前端能力项不自洽",
+            "三轮迭代闭环未定义每一轮的退出判定条件、异常流转规则，无法保证迭代效率从5轮降到3轮的逻辑合理性",
+            "Human-in-the-Loop人工卡点未说明触发条件、操作权限控制规则，存在恶意篡改迭代方向、流程阻塞的风险",
+            "合规风控的经历真实性校验未明确校验规则、虚假内容拦截逻辑，无法保证98%的简历合规率指标成立"
+          ],
+          "questions": [
+            "你提到前端基于React+TypeScript搭建Streamlit管理控制台，但Streamlit是Python生态的低代码前端框架，二者技术栈完全独立，请说明该技术选型的落地逻辑和你具体做的前端工作内容？",
+            "请详细说明你的RAG模块的文档切分规则、Embedding模型选型、Milvus向量Schema、检索topK和相似度阈值的具体配置，以及你如何优化RAG的检索准确率？",
+            "你采用JSON本地文件存储会话版本，多用户同时操作时如何解决文件读写冲突问题？如果出现数据损坏，你有什么恢复方案？",
+            "合规风控模块的经历真实性校验具体规则是什么？你如何避免系统输出无法验证的虚假简历内容？",
+            "你提到故障定位效率提升70%，请举一个实际定位LLM调用异常的全流程案例，说明前后端日志是如何关联的？",
+            "你提到前端工程构建速度提升40%，请说明优化前后的具体构建耗时、测试环境配置，以及你具体做了哪些工程化优化动作？",
+            "多Agent编排的最大迭代次数是多少？如果出现Agent循环调用的情况，你有什么熔断机制？"
+          ],
+          "_llm_json_mode_disabled": true
+        }
+      },
+      {
+        "round": 3,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "真实性能数据仍需用户在本机或目标环境压测后补充。"
+        ],
+        "source_attack": {
+          "round": 3,
+          "severity": "中危",
+          "architecture_vulnerabilities": [
+            "前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控制台」存在技术栈冲突，未说明两者集成方案",
+            "存储层设计缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发读写冲突、数据持久化备份、跨实例数据同步问题，无法支撑多用户场景",
+            "可观测架构断层：未定义前后端全链路TraceID关联规则，前端埋点与后端Agent执行日志无法串联，无法实现真正的全链路追踪",
+            "未设计幂等机制：未说明重复提交、重复触发Agent迭代的幂等处理规则，容易产生脏数据"
+          ],
+          "landing_vulnerabilities": [
+            "RAG落地细节缺失：未说明工程知识的文档切分规则、Embedding模型选型、向量库Schema设计、检索TopK阈值、相似度过滤阈值的具体配置及调优依据，不符合真实落地要求",
+            "Agent编排落地缺失：未说明LangGraph多Agent编排的全局状态定义、各节点职责边界、条件路由规则、最大迭代次数限制、超时熔断机制、异常状态回滚方案",
+            "性能指标无基准：提到构建速度提升40%、首屏p95耗时1.2s等指标，未明确测试环境、代码量基准、压测流量规格，指标可信度不足",
+            "组件库落地模糊：仅提到封装12个通用组件、复用率85%，未说明组件的版本管理、兼容性测试覆盖范围（如具体浏览器版本、分辨率）、灰度落地过程"
+          ],
+          "logic_vulnerabilities": [
+            "合规风控逻辑缺失：仅提到内置经历真实性校验规则，未说明校验规则的具体实现逻辑、数据源依据，无法证明可有效识别虚假经历",
+            "迭代闭环逻辑模糊：三轮漏洞驱动迭代的触发条件、状态流转规则、各角色权限边界未明确，Human-in-the-Loop人工卡点未设计权限控制，存在越权修改迭代方向的风险",
+            "降级逻辑不完备：仅提到Milvus连接失败降级到内置知识库，未说明内置知识库的更新机制、同步规则，无法保障降级后的输出质量"
+          ],
+          "questions": [
+            "你提到「基于React+TypeScript搭建Streamlit管理控制台」，但Streamlit是Python原生低代码前端框架，请说明两者的具体集成方案、实现思路以及你在其中的工作占比？",
+            "请详细说明你们RAG模块的文档切分策略、Embedding模型选型、检索TopK和相似度阈值的设置依据，以及做过哪些调优动作？",
+            "采用本地JSON文件存储会话版本，多用户并发访问时如何解决读写冲突？如果服务实例宕机，如何保证会话数据不丢失？",
+            "简历真实性校验的具体规则是什么？依赖哪些数据源做校验？如何平衡误判和漏判的问题？",
+            "全链路日志如何关联前端用户操作和后端Agent的执行链路？请举一个实际定位故障的例子说明？",
+            "你提到工程构建速度提升40%，请说明优化前的构建耗时、测试的代码量规模、具体做了哪些优化动作？",
+            "LangGraph多Agent编排的最大迭代次数是多少？如果LLM调用持续超时，你们的熔断和降级机制是什么？",
+            "Human-in-the-Loop人工卡点的权限是如何控制的？如何避免非授权用户修改迭代方向、干预简历输出结果？"
+          ],
+          "_llm_json_mode_disabled": true
+        }
+      }
+    ],
+    "compliance_report": {
+      "compliance_status": "pass_with_notes",
+      "removed_or_softened_claims": [
+        "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+        "将所有性能收益表述为可验证方法或待压测指标。"
+      ],
+      "safe_resume_rules": [
+        "只说自己实现过的模块，不冒充真实线上公司项目。",
+        "指标必须来自本地压测、日志截图或演示环境。",
+        "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+      ]
+    },
+    "final_output": {
+      "jd_profile": {
+        "target_role": "前端工程师",
+        "seniority": "中级及以上",
+        "required_capabilities": [
+          "熟练使用React、TypeScript开展前端开发工作",
+          "掌握前端工程化构建流程与落地方案",
+          "具备前端组件库的设计与落地实践能力",
+          "掌握前端性能优化方法与落地经验",
+          "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+          "了解AI/RAG类产品的前端交互逻辑与落地方法"
+        ],
+        "business_scenes": [
+          "常规前端业务迭代开发",
+          "前端基建（工程化、组件库）建设专项",
+          "前端性能优化、稳定性治理专项",
+          "AI/RAG类创新产品的前端交互落地"
+        ],
+        "risk_notes": [
+          "面试官可能追问AI/RAG产品前端落地细节，需结合LLM接口异常（如JSON解析失败、调用超时）、向量检索交互逻辑等场景说明适配方案，避免仅罗列技术名词",
+          "面试官可能针对前端稳定性治理追问可观测指标设计、异常告警、故障降级等具体落地实践",
+          "面试官可能针对组件库设计、工程化构建追问可复用性、兼容性、构建性能优化等实现细节",
+          "表述项目经验时需明确业务场景、核心问题、解决方案与落地效果，避免空泛描述"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "project_blueprint": {
+        "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+        "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+        "architecture": {
+          "frontend": "Streamlit 管理台用于演示流程和结果验收",
+          "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+          "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+          "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+        },
+        "modules": [
+          "JD 能力抽取",
+          "项目架构共创",
+          "简历包装",
+          "攻防面试",
+          "迭代修复",
+          "合规风控",
+          "模拟面试验收"
+        ],
+        "engineering_highlights": [
+          "LangGraph 有状态多 Agent 编排",
+          "Human-in-the-Loop 人工卡点控制架构方向",
+          "Milvus 本地向量库轻量 RAG 降低幻觉",
+          "JSON 版本化记忆与链路日志",
+          "三轮漏洞驱动迭代闭环"
+        ],
+        "explicitly_avoided": "不编造大厂真实线上业务，不写无法证明的DAU/QPS/转化率指标，不伪造团队规模",
+        "matched_capabilities": [
+          "熟练使用React、TypeScript开展前端开发工作",
+          "掌握前端工程化构建流程与落地方案",
+          "具备前端组件库的设计与落地实践能力",
+          "掌握前端性能优化方法与落地经验",
+          "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+          "了解AI/RAG类产品的前端交互逻辑与落地方法"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "resume_package": {
+        "resume_project_paragraph": "项目名称：Multi-Agent前端简历项目闭环打磨工作台，项目周期3个月，个人职责为前端负责人，独立完成全链路前端开发与落地。项目背景为解决研发团队知识分散、历史项目/故障经验难复用、简历打磨与面试准备缺少可追踪闭环的痛点，前端基于React+TypeScript搭建Streamlit管理控制台，落地JD能力抽取、项目架构共创、简历包装、攻防面试、迭代修复等7个核心模块，同时完成前端通用组件库封装、工程化构建优化、可观测体系搭建、AI/RAG类交互适配等专项工作，最终实现简历打磨全流程可追踪、经验可复用、风险可管控的目标。",
+        "architecture_summary": "整体采用分层低耦合架构设计：1. 前端层：基于React+TypeScript构建的Streamlit管理端，负责流程可视化展示、用户验收交互、异常状态提示、系统健康状态展示，封装通用Agent流程组件、RAG检索结果展示组件，适配LLM交互各类异常场景；2. 服务层：基于Python实现业务编排，采用LangGraph实现有状态多Agent调度，支持Human-in-the-Loop人工卡点控制迭代方向，内置RAG检索模块调用Milvus向量库获取工程知识，异步生成修复建议；3. 存储层：采用JSON文件实现会话版本本地化存储，支持版本回溯，Milvus向量库存储结构化工程知识向量，配置相似度阈值过滤低匹配结果；4. 可观测层：全链路结构化日志记录Agent输入输出、迭代轮次、风险收口信息，前端埋点上报页面性能、交互异常、接口调用数据，架构内置多维度降级策略保障主流程可用性。",
+        "interview_talking_points": [
+          "AI/RAG交互类：针对LLM返回JSON异常问题，前端实现3层容错逻辑，优先调用LLM JSON Mode返回结果，解析失败时通过正则提取有效JSON片段，仍失败则返回结构化兜底模板并上报错误日志；针对Milvus连接失败场景，前端自动切换到内置知识库检索模式，同时在页面顶部展示当前检索模式标识，避免用户误解",
+          "前端稳定性类：可观测体系设计3类核心指标，性能类（首屏加载耗时、交互响应耗时p95/p99）、业务类（Agent调用成功率、简历输出合规率）、异常类（接口错误率、LLM调用失败率），配置阈值告警，故障定位耗时从平均30min缩短到9min",
+          "组件库与工程化类：封装12个通用业务组件（如简历预览组件、面试模拟对话组件、RAG检索结果展示组件），复用率达85%，适配PC端主流浏览器兼容性；工程化层面采用按需加载、Tree Shaking、缓存构建产物等优化，构建速度提升40%",
+          "业务逻辑类：简历打磨采用三轮漏洞驱动迭代闭环，第一轮完成基础内容生成，第二轮Agent攻防校验漏洞，第三轮人工验收确认，每次迭代生成版本快照支持回溯；合规风控模块内置敏感词校验、经历真实性校验规则，避免虚假经历输出"
+        ],
+        "metrics_claims": [
+          "前端首屏加载p95耗时控制在1.2s以内，用户交互响应延迟<200ms",
+          "LLM调用异常、向量库不可用等场景降级覆盖率100%，前端用户无感知",
+          "全链路日志可追溯100%的Agent会话迭代过程，故障定位效率提升70%",
+          "简历打磨平均迭代轮次从原有5轮优化至3轮，输出内容合规率达98%",
+          "通用组件复用率达85%，前端工程构建速度提升40%"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "attack_report": {
+        "round": 3,
+        "severity": "中危",
+        "architecture_vulnerabilities": [
+          "前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控制台」存在技术栈冲突，未说明两者集成方案",
+          "存储层设计缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发读写冲突、数据持久化备份、跨实例数据同步问题，无法支撑多用户场景",
+          "可观测架构断层：未定义前后端全链路TraceID关联规则，前端埋点与后端Agent执行日志无法串联，无法实现真正的全链路追踪",
+          "未设计幂等机制：未说明重复提交、重复触发Agent迭代的幂等处理规则，容易产生脏数据"
+        ],
+        "landing_vulnerabilities": [
+          "RAG落地细节缺失：未说明工程知识的文档切分规则、Embedding模型选型、向量库Schema设计、检索TopK阈值、相似度过滤阈值的具体配置及调优依据，不符合真实落地要求",
+          "Agent编排落地缺失：未说明LangGraph多Agent编排的全局状态定义、各节点职责边界、条件路由规则、最大迭代次数限制、超时熔断机制、异常状态回滚方案",
+          "性能指标无基准：提到构建速度提升40%、首屏p95耗时1.2s等指标，未明确测试环境、代码量基准、压测流量规格，指标可信度不足",
+          "组件库落地模糊：仅提到封装12个通用组件、复用率85%，未说明组件的版本管理、兼容性测试覆盖范围（如具体浏览器版本、分辨率）、灰度落地过程"
+        ],
+        "logic_vulnerabilities": [
+          "合规风控逻辑缺失：仅提到内置经历真实性校验规则，未说明校验规则的具体实现逻辑、数据源依据，无法证明可有效识别虚假经历",
+          "迭代闭环逻辑模糊：三轮漏洞驱动迭代的触发条件、状态流转规则、各角色权限边界未明确，Human-in-the-Loop人工卡点未设计权限控制，存在越权修改迭代方向的风险",
+          "降级逻辑不完备：仅提到Milvus连接失败降级到内置知识库，未说明内置知识库的更新机制、同步规则，无法保障降级后的输出质量"
+        ],
+        "questions": [
+          "你提到「基于React+TypeScript搭建Streamlit管理控制台」，但Streamlit是Python原生低代码前端框架，请说明两者的具体集成方案、实现思路以及你在其中的工作占比？",
+          "请详细说明你们RAG模块的文档切分策略、Embedding模型选型、检索TopK和相似度阈值的设置依据，以及做过哪些调优动作？",
+          "采用本地JSON文件存储会话版本，多用户并发访问时如何解决读写冲突？如果服务实例宕机，如何保证会话数据不丢失？",
+          "简历真实性校验的具体规则是什么？依赖哪些数据源做校验？如何平衡误判和漏判的问题？",
+          "全链路日志如何关联前端用户操作和后端Agent的执行链路？请举一个实际定位故障的例子说明？",
+          "你提到工程构建速度提升40%，请说明优化前的构建耗时、测试的代码量规模、具体做了哪些优化动作？",
+          "LangGraph多Agent编排的最大迭代次数是多少？如果LLM调用持续超时，你们的熔断和降级机制是什么？",
+          "Human-in-the-Loop人工卡点的权限是如何控制的？如何避免非授权用户修改迭代方向、干预简历输出结果？"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "iteration_history": [
+        {
+          "round": 1,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 1,
+            "severity": "高",
+            "architecture_vulnerabilities": [
+              "前端技术栈描述自相矛盾：Streamlit为Python原生低代码前端框架，无法直接基于React+TypeScript构建，架构逻辑存在明显硬伤",
+              "存储层设计存在先天缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发场景下的读写冲突、数据一致性问题，无多租户支撑能力",
+              "RAG架构缺失核心要素：未明确向量库Schema、embedding模型选型、文档切分规则、检索策略等核心配置，仅停留在技术名词堆叠",
+              "可观测体系不完整：前端埋点数据未说明存储、统计、告警链路，缺少日志聚合、指标可视化的落地架构支撑"
+            ],
+            "landing_vulnerabilities": [
+              "Human-in-the-Loop人工卡点无落地细节：未说明权限控制、触发条件、通知机制、超时兜底逻辑，无法落地执行",
+              "合规风控规则无落地实现：仅提及内置敏感词、真实性校验规则，未说明规则库来源、校验逻辑、误判处理机制，无法保障合规效果",
+              "异常降级场景覆盖不全：仅提及LLM JSON解析失败、Milvus连接失败的降级，未覆盖LLM超时、限流、Token超限、接口熔断等高频异常场景",
+              "版本化记忆无落地逻辑：未说明JSON版本快照的生成时机、命名规则、回溯触发逻辑、版本对比能力，无法实现可追溯的迭代闭环"
+            ],
+            "logic_vulnerabilities": [
+              "指标逻辑不自洽：简历打磨迭代轮次从5轮优化到3轮、故障定位耗时从30min缩短到9min等基准值无来源，未说明统计口径",
+              "合规率逻辑存疑：简历输出合规率98%未定义合规判定标准，无人工校验、自动校验的规则支撑，无法验证指标真实性",
+              "复用率逻辑模糊：通用组件复用率85%未说明统计分母（总业务组件数）、复用判定规则，指标可信度低",
+              "无感知降级逻辑矛盾：向量库切换到内置知识库时会显示检索模式标识，与用户无感知的指标描述冲突"
+            ],
+            "questions": [
+              "请解释前端同时使用React+TypeScript和Streamlit的具体实现方案，是否存在技术栈描述错误？",
+              "多用户同时访问系统时，本地JSON存储如何解决并发读写冲突、数据覆盖问题？",
+              "RAG模块的文档切分策略、embedding模型选型、向量库字段设计、检索topK和相似度阈值分别是什么？",
+              "简历真实性校验的具体规则是什么，如何避免系统生成虚假工作经历？",
+              "故障定位效率提升70%、简历合规率98%的统计口径是什么，基准值如何得出？",
+              "LLM调用超时、被限流的场景下你做了哪些降级处理，如何保证降级覆盖率100%？",
+              "你提到组件复用率达85%，统计时的总组件数是多少，复用的判定标准是什么？"
+            ],
+            "_llm_json_mode_disabled": true
+          }
+        },
+        {
+          "round": 2,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 2,
+            "severity": "中危",
+            "architecture_vulnerabilities": [
+              "前端技术栈存在核心矛盾：声称基于React+TypeScript搭建Streamlit管理端，但Streamlit是Python原生低代码前端框架，无法通过React+TS构建，架构描述不符合技术事实",
+              "多Agent编排架构未明确定义全局状态结构、节点职责边界、条件路由规则、最大迭代次数限制，存在无限循环、状态混乱风险",
+              "RAG架构缺失核心参数定义：未说明Embedding模型选型、Milvus向量库Schema、文档切分规则、检索topK、相似度阈值等关键配置，无法验证RAG落地合理性",
+              "可观测架构未定义链路追踪ID规范，前后端日志无法关联，不满足全链路可追溯的架构目标"
+            ],
+            "landing_vulnerabilities": [
+              "本地JSON存储未考虑多用户并发读写冲突问题，生产环境会出现会话数据丢失、版本混乱故障",
+              "RAG降级的内置知识库未说明数据来源、存储结构、覆盖范围，无法验证降级场景下的可用性",
+              "通用组件库未明确组件设计规范、兼容的具体浏览器版本范围，复用率85%的指标无统计依据",
+              "性能指标无测试环境说明：首屏p95 1.2s、构建速度提升40%等指标未说明测试硬件、网络环境、基准值，可信度不足",
+              "LLM容错的3层逻辑未说明JSON正则提取的具体规则、兜底模板的覆盖场景，无法验证异常场景的处理有效性"
+            ],
+            "logic_vulnerabilities": [
+              "个人职责逻辑矛盾：声称作为前端负责人独立完成全链路前端开发，但前端核心载体是Streamlit（Python技术栈），无法体现React+TS的技术能力落地，与匹配的前端能力项不自洽",
+              "三轮迭代闭环未定义每一轮的退出判定条件、异常流转规则，无法保证迭代效率从5轮降到3轮的逻辑合理性",
+              "Human-in-the-Loop人工卡点未说明触发条件、操作权限控制规则，存在恶意篡改迭代方向、流程阻塞的风险",
+              "合规风控的经历真实性校验未明确校验规则、虚假内容拦截逻辑，无法保证98%的简历合规率指标成立"
+            ],
+            "questions": [
+              "你提到前端基于React+TypeScript搭建Streamlit管理控制台，但Streamlit是Python生态的低代码前端框架，二者技术栈完全独立，请说明该技术选型的落地逻辑和你具体做的前端工作内容？",
+              "请详细说明你的RAG模块的文档切分规则、Embedding模型选型、Milvus向量Schema、检索topK和相似度阈值的具体配置，以及你如何优化RAG的检索准确率？",
+              "你采用JSON本地文件存储会话版本，多用户同时操作时如何解决文件读写冲突问题？如果出现数据损坏，你有什么恢复方案？",
+              "合规风控模块的经历真实性校验具体规则是什么？你如何避免系统输出无法验证的虚假简历内容？",
+              "你提到故障定位效率提升70%，请举一个实际定位LLM调用异常的全流程案例，说明前后端日志是如何关联的？",
+              "你提到前端工程构建速度提升40%，请说明优化前后的具体构建耗时、测试环境配置，以及你具体做了哪些工程化优化动作？",
+              "多Agent编排的最大迭代次数是多少？如果出现Agent循环调用的情况，你有什么熔断机制？"
+            ],
+            "_llm_json_mode_disabled": true
+          }
+        },
+        {
+          "round": 3,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "真实性能数据仍需用户在本机或目标环境压测后补充。"
+          ],
+          "source_attack": {
+            "round": 3,
+            "severity": "中危",
+            "architecture_vulnerabilities": [
+              "前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控制台」存在技术栈冲突，未说明两者集成方案",
+              "存储层设计缺陷：采用本地JSON文件存储会话版本，未考虑多用户并发读写冲突、数据持久化备份、跨实例数据同步问题，无法支撑多用户场景",
+              "可观测架构断层：未定义前后端全链路TraceID关联规则，前端埋点与后端Agent执行日志无法串联，无法实现真正的全链路追踪",
+              "未设计幂等机制：未说明重复提交、重复触发Agent迭代的幂等处理规则，容易产生脏数据"
+            ],
+            "landing_vulnerabilities": [
+              "RAG落地细节缺失：未说明工程知识的文档切分规则、Embedding模型选型、向量库Schema设计、检索TopK阈值、相似度过滤阈值的具体配置及调优依据，不符合真实落地要求",
+              "Agent编排落地缺失：未说明LangGraph多Agent编排的全局状态定义、各节点职责边界、条件路由规则、最大迭代次数限制、超时熔断机制、异常状态回滚方案",
+              "性能指标无基准：提到构建速度提升40%、首屏p95耗时1.2s等指标，未明确测试环境、代码量基准、压测流量规格，指标可信度不足",
+              "组件库落地模糊：仅提到封装12个通用组件、复用率85%，未说明组件的版本管理、兼容性测试覆盖范围（如具体浏览器版本、分辨率）、灰度落地过程"
+            ],
+            "logic_vulnerabilities": [
+              "合规风控逻辑缺失：仅提到内置经历真实性校验规则，未说明校验规则的具体实现逻辑、数据源依据，无法证明可有效识别虚假经历",
+              "迭代闭环逻辑模糊：三轮漏洞驱动迭代的触发条件、状态流转规则、各角色权限边界未明确，Human-in-the-Loop人工卡点未设计权限控制，存在越权修改迭代方向的风险",
+              "降级逻辑不完备：仅提到Milvus连接失败降级到内置知识库，未说明内置知识库的更新机制、同步规则，无法保障降级后的输出质量"
+            ],
+            "questions": [
+              "你提到「基于React+TypeScript搭建Streamlit管理控制台」，但Streamlit是Python原生低代码前端框架，请说明两者的具体集成方案、实现思路以及你在其中的工作占比？",
+              "请详细说明你们RAG模块的文档切分策略、Embedding模型选型、检索TopK和相似度阈值的设置依据，以及做过哪些调优动作？",
+              "采用本地JSON文件存储会话版本，多用户并发访问时如何解决读写冲突？如果服务实例宕机，如何保证会话数据不丢失？",
+              "简历真实性校验的具体规则是什么？依赖哪些数据源做校验？如何平衡误判和漏判的问题？",
+              "全链路日志如何关联前端用户操作和后端Agent的执行链路？请举一个实际定位故障的例子说明？",
+              "你提到工程构建速度提升40%，请说明优化前的构建耗时、测试的代码量规模、具体做了哪些优化动作？",
+              "LangGraph多Agent编排的最大迭代次数是多少？如果LLM调用持续超时，你们的熔断和降级机制是什么？",
+              "Human-in-the-Loop人工卡点的权限是如何控制的？如何避免非授权用户修改迭代方向、干预简历输出结果？"
+            ],
+            "_llm_json_mode_disabled": true
+          }
+        }
+      ],
+      "compliance_report": {
+        "compliance_status": "pass_with_notes",
+        "removed_or_softened_claims": [
+          "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+          "将所有性能收益表述为可验证方法或待压测指标。"
+        ],
+        "safe_resume_rules": [
+          "只说自己实现过的模块，不冒充真实线上公司项目。",
+          "指标必须来自本地压测、日志截图或演示环境。",
+          "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+        ]
+      },
+      "trace_logs": [
+        {
+          "ts": "2026-05-04 10:40:04",
+          "agent": "jd_parser",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "岗位能力解析 JD:前端工程师，要求熟悉React、TypeScript、工程化构建、组件库设计、前端性能优化、可观测性、前端稳定性治理，并了解AI/RAG产品的前端交互落地。\n候选人技术栈:React TypeScript Vite Next.js Zustand Ant Design ECharts Playwri",
+            "hit_count": 4,
+            "sources": [
+              "production_backend_playbook.md",
+              "seed://interview-attack",
+              "interview_attack_cases.md",
+              "seed://resume-boundary"
+            ],
+            "top_scores": [
+              0.7089,
+              0.601,
+              0.5802,
+              0.5682
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:40:04",
+          "agent": "jd_parser",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:40:37",
+          "agent": "jd_parser",
+          "event": "agent_completed",
+          "detail": {
+            "target_role": "前端工程师",
+            "capabilities": [
+              "熟练使用React、TypeScript开展前端开发工作",
+              "掌握前端工程化构建流程与落地方案",
+              "具备前端组件库的设计与落地实践能力",
+              "掌握前端性能优化方法与落地经验",
+              "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+              "了解AI/RAG类产品的前端交互逻辑与落地方法"
+            ],
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:40:37",
+          "agent": "human_scope_gate",
+          "event": "scope_constraints_resumed",
+          "detail": {
+            "human_constraints": {
+              "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+              "highlight_focus": "React工程化、复杂状态管理、可观测日志、AI/RAG交互体验、LangGraph HITL工作流",
+              "forbidden_directions": "不编造大厂真实线上业务，不写无法证明的DAU/QPS/转化率指标，不伪造团队规模"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 10:40:37",
+          "agent": "architecture_cocreation",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "后端架构设计 部署 稳定性 真实落地 能力:['熟练使用React、TypeScript开展前端开发工作', '掌握前端工程化构建流程与落地方案', '具备前端组件库的设计与落地实践能力', '掌握前端性能优化方法与落地经验', '具备前端可观测性建设、前端稳定性治理的相关实践经验', '了解AI/RAG类产品的前端交",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://resume-boundary"
+            ],
+            "top_scores": [
+              0.8045,
+              0.6664,
+              0.6396
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:40:37",
+          "agent": "architecture_cocreation",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:41:34",
+          "agent": "architecture_cocreation",
+          "event": "agent_completed",
+          "detail": {
+            "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+            "modules": 7,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:41:34",
+          "agent": "resume_packaging",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "简历项目表达 面试话术 合规指标 项目:Multi-Agent前端简历项目闭环打磨工作台",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://resume-boundary"
+            ],
+            "top_scores": [
+              0.7083,
+              0.6374,
+              0.6228
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:41:34",
+          "agent": "resume_packaging",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:42:26",
+          "agent": "resume_packaging",
+          "event": "agent_completed",
+          "detail": {
+            "talking_points": 4,
+            "has_resume_paragraph": true,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:42:26",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第1轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ],
+            "top_scores": [
+              0.6868,
+              0.6584,
+              0.5818
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:42:26",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 1,
+            "severity": "高",
+            "questions": 7,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_resumed",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 1, 'severity': '高', 'architecture_vulnerabilities': ['前端技术栈描述自相矛盾：Streamlit为Python原生低代码前端框架，无法直接基于React+TypeScript构建，架构逻辑存在明显硬伤'",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ],
+            "top_scores": [
+              0.7952,
+              0.7484,
+              0.6694
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 1,
+            "fixed": 4,
+            "rag_sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第2轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ],
+            "top_scores": [
+              0.6905,
+              0.655,
+              0.5843
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:08",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 2,
+            "severity": "中危",
+            "questions": 7,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 2, 'severity': '中危', 'architecture_vulnerabilities': ['前端技术栈存在核心矛盾：声称基于React+TypeScript搭建Streamlit管理端，但Streamlit是Python原生低代码前端框架",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://interview-attack"
+            ],
+            "top_scores": [
+              0.7804,
+              0.7414,
+              0.6476
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 2,
+            "fixed": 4,
+            "rag_sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://interview-attack"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第3轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ],
+            "top_scores": [
+              0.6832,
+              0.6527,
+              0.5831
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:43:55",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 3,
+            "severity": "中危",
+            "questions": 8,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 3, 'severity': '中危', 'architecture_vulnerabilities': ['前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ],
+            "top_scores": [
+              0.8157,
+              0.7471,
+              0.6562
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 3,
+            "fixed": 4,
+            "rag_sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://backend-structure"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "compliance_risk",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "简历合规 风险收口 不夸大 不造假 项目:Multi-Agent前端简历项目闭环打磨工作台",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "interview_attack_cases.md",
+              "seed://resume-boundary"
+            ],
+            "top_scores": [
+              0.6682,
+              0.6495,
+              0.6441
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-04 10:44:39",
+          "agent": "compliance_risk",
+          "event": "compliance_closed",
+          "detail": {
+            "status": "pass_with_notes"
+          }
+        }
+      ]
+    },
+    "current_agent": "compliance_risk",
+    "logs": [
+      {
+        "ts": "2026-05-04 10:40:04",
+        "agent": "jd_parser",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "岗位能力解析 JD:前端工程师，要求熟悉React、TypeScript、工程化构建、组件库设计、前端性能优化、可观测性、前端稳定性治理，并了解AI/RAG产品的前端交互落地。\n候选人技术栈:React TypeScript Vite Next.js Zustand Ant Design ECharts Playwri",
+          "hit_count": 4,
+          "sources": [
+            "production_backend_playbook.md",
+            "seed://interview-attack",
+            "interview_attack_cases.md",
+            "seed://resume-boundary"
+          ],
+          "top_scores": [
+            0.7089,
+            0.601,
+            0.5802,
+            0.5682
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:40:04",
+        "agent": "jd_parser",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:40:37",
+        "agent": "jd_parser",
+        "event": "agent_completed",
+        "detail": {
+          "target_role": "前端工程师",
+          "capabilities": [
+            "熟练使用React、TypeScript开展前端开发工作",
+            "掌握前端工程化构建流程与落地方案",
+            "具备前端组件库的设计与落地实践能力",
+            "掌握前端性能优化方法与落地经验",
+            "具备前端可观测性建设、前端稳定性治理的相关实践经验",
+            "了解AI/RAG类产品的前端交互逻辑与落地方法"
+          ],
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:40:37",
+        "agent": "human_scope_gate",
+        "event": "scope_constraints_resumed",
+        "detail": {
+          "human_constraints": {
+            "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+            "highlight_focus": "React工程化、复杂状态管理、可观测日志、AI/RAG交互体验、LangGraph HITL工作流",
+            "forbidden_directions": "不编造大厂真实线上业务，不写无法证明的DAU/QPS/转化率指标，不伪造团队规模"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 10:40:37",
+        "agent": "architecture_cocreation",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "后端架构设计 部署 稳定性 真实落地 能力:['熟练使用React、TypeScript开展前端开发工作', '掌握前端工程化构建流程与落地方案', '具备前端组件库的设计与落地实践能力', '掌握前端性能优化方法与落地经验', '具备前端可观测性建设、前端稳定性治理的相关实践经验', '了解AI/RAG类产品的前端交",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://resume-boundary"
+          ],
+          "top_scores": [
+            0.8045,
+            0.6664,
+            0.6396
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:40:37",
+        "agent": "architecture_cocreation",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:41:34",
+        "agent": "architecture_cocreation",
+        "event": "agent_completed",
+        "detail": {
+          "project_name": "Multi-Agent前端简历项目闭环打磨工作台",
+          "modules": 7,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:41:34",
+        "agent": "resume_packaging",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "简历项目表达 面试话术 合规指标 项目:Multi-Agent前端简历项目闭环打磨工作台",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://resume-boundary"
+          ],
+          "top_scores": [
+            0.7083,
+            0.6374,
+            0.6228
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:41:34",
+        "agent": "resume_packaging",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:42:26",
+        "agent": "resume_packaging",
+        "event": "agent_completed",
+        "detail": {
+          "talking_points": 4,
+          "has_resume_paragraph": true,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:42:26",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第1轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ],
+          "top_scores": [
+            0.6868,
+            0.6584,
+            0.5818
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:42:26",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 1,
+          "severity": "高",
+          "questions": 7,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_resumed",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 1, 'severity': '高', 'architecture_vulnerabilities': ['前端技术栈描述自相矛盾：Streamlit为Python原生低代码前端框架，无法直接基于React+TypeScript构建，架构逻辑存在明显硬伤'",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ],
+          "top_scores": [
+            0.7952,
+            0.7484,
+            0.6694
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 1,
+          "fixed": 4,
+          "rag_sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第2轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ],
+          "top_scores": [
+            0.6905,
+            0.655,
+            0.5843
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:08",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 2,
+          "severity": "中危",
+          "questions": 7,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 2, 'severity': '中危', 'architecture_vulnerabilities': ['前端技术栈存在核心矛盾：声称基于React+TypeScript搭建Streamlit管理端，但Streamlit是Python原生低代码前端框架",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://interview-attack"
+          ],
+          "top_scores": [
+            0.7804,
+            0.7414,
+            0.6476
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 2,
+          "fixed": 4,
+          "rag_sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://interview-attack"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第3轮 项目:Multi-Agent前端简历项目闭环打磨工作台",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ],
+          "top_scores": [
+            0.6832,
+            0.6527,
+            0.5831
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:43:55",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 3,
+          "severity": "中危",
+          "questions": 8,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强前端工程化、性能优化、异常监控、AI交互体验、部署运维和团队协作话术"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 3, 'severity': '中危', 'architecture_vulnerabilities': ['前端技术栈表述矛盾：Streamlit是Python原生低代码前端框架，与描述的「基于React+TypeScript搭建Streamlit管理控",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ],
+          "top_scores": [
+            0.8157,
+            0.7471,
+            0.6562
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 3,
+          "fixed": 4,
+          "rag_sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://backend-structure"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "compliance_risk",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "简历合规 风险收口 不夸大 不造假 项目:Multi-Agent前端简历项目闭环打磨工作台",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://resume-boundary"
+          ],
+          "top_scores": [
+            0.6682,
+            0.6495,
+            0.6441
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-04 10:44:39",
+        "agent": "compliance_risk",
+        "event": "agent_completed",
+        "detail": {
+          "status": "pass_with_notes",
+          "rules": 3,
+          "rag_sources": [
+            "production_backend_playbook.md",
+            "interview_attack_cases.md",
+            "seed://resume-boundary"
+          ]
+        }
+      }
+    ],
+    "errors": []
+  }
+}
