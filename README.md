@@ -1,3 +1,6 @@
+# ProjectWaver
+A multi-agent project designed for polishing projects in programmers' CV.
+
 # Multi-Agent程序员简历项目闭环打磨系统
 
 一个轻量化、可本地演示、可写进简历的 Multi-Agent 项目：用 Python + LangGraph 编排六个智能体，结合本地 Milvus 轻量 RAG、Streamlit 前端和 JSON 持久化记忆，完成从岗位 JD 到简历项目段落、架构说明、面试话术、漏洞修复溯源的闭环。
