@@ -42,6 +42,143 @@ def _render_context_for_agent(agent: str, hits: List[Dict[str, Any]]) -> tuple[s
     return context, make_log(agent, "tool_invoked", {"tool": "render_rag_context", "chars": len(context)})
 
 
+def _llm_failure_reason(output: Dict[str, Any]) -> str:
+    return str(output.get("_llm_fallback_reason", ""))
+
+
+def _with_llm_fallback_meta(output: Dict[str, Any], reason: str, action: str) -> Dict[str, Any]:
+    enriched = dict(output)
+    enriched["_llm_fallback_reason"] = reason
+    enriched["_llm_fallback_action"] = action
+    return enriched
+
+
+def _normalize_human_action(decision: Any) -> Dict[str, Any]:
+    if not isinstance(decision, dict):
+        return {"action": "skip"}
+    payload = decision.get("llm_fallback_decision", decision)
+    return payload if isinstance(payload, dict) else {"action": "skip"}
+
+
+def _action_is(action: str, *candidates: str) -> bool:
+    normalized = action.strip().lower()
+    return normalized in candidates
+
+
+def _llm_json_with_hitl(
+    *,
+    agent: str,
+    system: str,
+    user: str,
+    fallback: Dict[str, Any],
+    skip_output: Dict[str, Any],
+    expected_schema: Dict[str, str],
+    state_summary: Dict[str, Any],
+) -> Dict[str, Any]:
+    output = llm_client.json_chat(system, user, fallback)
+    reason = _llm_failure_reason(output)
+    if not reason:
+        return output
+
+    decision = _normalize_human_action(
+        interrupt(
+            {
+                "checkpoint": "llm_fallback",
+                "agent": agent,
+                "message": "当前节点 LLM 调用失败。请选择重试、手动补充结构化结果，或跳过本节点继续流程。",
+                "reason": reason,
+                "options": {
+                    "retry": "重新调用一次当前节点 LLM。",
+                    "manual": "按 expected_schema 提供 manual_output，作为本节点结果。",
+                    "skip": "忽略本次 LLM 请求，使用空的结构化结果继续下游流程。",
+                },
+                "expected_schema": expected_schema,
+                "state_summary": state_summary,
+                "suggested_skip_output": skip_output,
+            }
+        )
+    )
+    action = str(decision.get("action", "skip"))
+    if _action_is(action, "retry", "重试"):
+        retry_output = llm_client.json_chat(system, user, fallback)
+        retry_reason = _llm_failure_reason(retry_output)
+        if not retry_reason:
+            retry_output["_llm_fallback_action"] = "retry_succeeded"
+            return retry_output
+        return _with_llm_fallback_meta(skip_output, retry_reason, "retry_failed_then_skipped")
+
+    if _action_is(action, "manual", "手动", "human", "override"):
+        manual_output = decision.get("manual_output") or decision.get("output")
+        if isinstance(manual_output, dict):
+            manual_output["_llm_fallback_reason"] = reason
+            manual_output["_llm_fallback_action"] = "human_override"
+            manual_output["_llm_human_override"] = True
+            return manual_output
+
+    return _with_llm_fallback_meta(skip_output, reason, "skipped")
+
+
+def _skipped_jd_profile(target_level: str, keywords: List[str]) -> Dict[str, Any]:
+    return {
+        "target_role": "",
+        "seniority": target_level,
+        "required_capabilities": keywords,
+        "business_scenes": [],
+        "risk_notes": ["JD 解析节点 LLM 调用失败，已跳过自动岗位画像；建议后续人工补充目标岗位与能力要求。"],
+    }
+
+
+def _skipped_architecture(project_name: str, forbidden: str, capabilities: List[str]) -> Dict[str, Any]:
+    return {
+        "project_name": project_name,
+        "business_problem": "",
+        "architecture": {},
+        "modules": [],
+        "engineering_highlights": [],
+        "explicitly_avoided": forbidden,
+        "matched_capabilities": capabilities,
+    }
+
+
+def _skipped_technical_doc(project_name: str, min_version: int = 1) -> Dict[str, Any]:
+    return {
+        "version": min_version,
+        "project_overview": {"project_name": project_name, "business_problem": "", "target_users": "", "scope_boundary": ""},
+        "architecture_design": {"overall_architecture": {}, "modules": [], "data_flow": "", "state_management": "", "deployment_topology": ""},
+        "core_tech_stack": [],
+        "design_decisions": [],
+        "failure_handling": {},
+        "observability": {},
+        "interview_defense": {"key_talking_points": [], "likely_questions": [], "answer_boundaries": []},
+        "known_risks": ["技术文档节点 LLM 调用失败，本版本仅保留空结构，需人工补充。"],
+        "evidence_needed": [],
+        "change_log": [{"version": min_version, "summary": "LLM 调用失败，跳过本次技术文档生成。"}],
+    }
+
+
+def _skipped_resume_package() -> Dict[str, Any]:
+    return {
+        "resume_project_paragraph": "",
+        "architecture_summary": [],
+        "interview_talking_points": [],
+        "metrics_claims": [],
+    }
+
+
+def _skipped_attack_report(round_no: int) -> Dict[str, Any]:
+    return {
+        "round": round_no,
+        "severity": "unknown",
+        "doc_based_questions": [],
+        "doc_gaps": [],
+        "architecture_vulnerabilities": [],
+        "landing_vulnerabilities": [],
+        "logic_vulnerabilities": [],
+        "recommended_doc_updates": [],
+        "questions": [],
+    }
+
+
 def _sanitize_resume_package(package: Dict[str, Any]) -> tuple[Dict[str, Any], List[str]]:
     sanitized = dict(package)
     paragraph = str(sanitized.get("resume_project_paragraph", ""))
@@ -68,10 +205,20 @@ def jd_parser_agent(state: ResumePolishState) -> ResumePolishState:
     rag_context, rag_log = _retrieve_for_agent("jd_parser", f"岗位能力解析 JD:{jd_text}\n候选人技术栈:{stack}", limit=4)
     jd_context, render_log = _render_context_for_agent("jd_parser", rag_context)
     fallback = jd_profile_fallback(state.get("target_level", "中级"), keywords)
-    jd_profile = llm_client.json_chat(
-        prompts.JD_PARSER_SYSTEM,
-        prompts.jd_parser_user(jd_text, stack, jd_context),
-        fallback,
+    jd_profile = _llm_json_with_hitl(
+        agent="jd_parser",
+        system=prompts.JD_PARSER_SYSTEM,
+        user=prompts.jd_parser_user(jd_text, stack, jd_context),
+        fallback=fallback,
+        skip_output=_skipped_jd_profile(state.get("target_level", "中级"), keywords),
+        expected_schema={
+            "target_role": "目标岗位名称，可为空",
+            "seniority": "目标职级",
+            "required_capabilities": "岗位要求能力列表",
+            "business_scenes": "可选业务场景列表",
+            "risk_notes": "真实性与边界提示",
+        },
+        state_summary={"target_level": state.get("target_level", "中级"), "keywords": keywords},
     )
     return {
         "current_agent": "jd_parser",
@@ -87,6 +234,7 @@ def jd_parser_agent(state: ResumePolishState) -> ResumePolishState:
                     "target_role": jd_profile.get("target_role"),
                     "capabilities": jd_profile.get("required_capabilities", []),
                     "used_fallback": "_llm_fallback_reason" in jd_profile,
+                    "fallback_action": jd_profile.get("_llm_fallback_action"),
                 },
             ),
         ],
@@ -132,10 +280,22 @@ def architecture_cocreation_agent(state: ResumePolishState) -> ResumePolishState
     )
     arch_context, render_log = _render_context_for_agent("architecture_cocreation", arch_hits)
     fallback = architecture_fallback(project_name, forbidden, capabilities)
-    blueprint = llm_client.json_chat(
-        prompts.ARCHITECTURE_SYSTEM,
-        prompts.architecture_user(capabilities, constraints, forbidden, f"{_ctx(state)}\n{arch_context}"),
-        fallback,
+    blueprint = _llm_json_with_hitl(
+        agent="architecture_cocreation",
+        system=prompts.ARCHITECTURE_SYSTEM,
+        user=prompts.architecture_user(capabilities, constraints, forbidden, f"{_ctx(state)}\n{arch_context}"),
+        fallback=fallback,
+        skip_output=_skipped_architecture(project_name, forbidden, capabilities),
+        expected_schema={
+            "project_name": "项目名称",
+            "business_problem": "项目要解决的问题，可为空",
+            "architecture": "架构分层对象",
+            "modules": "模块列表",
+            "engineering_highlights": "工程亮点列表",
+            "explicitly_avoided": "需要避免的方向",
+            "matched_capabilities": "匹配到的岗位能力",
+        },
+        state_summary={"project_name": project_name, "capabilities": capabilities, "constraints": constraints},
     )
     return {
         "current_agent": "architecture_cocreation",
@@ -150,6 +310,7 @@ def architecture_cocreation_agent(state: ResumePolishState) -> ResumePolishState
                     "project_name": blueprint.get("project_name"),
                     "modules": len(blueprint.get("modules", [])),
                     "used_fallback": "_llm_fallback_reason" in blueprint,
+                    "fallback_action": blueprint.get("_llm_fallback_action"),
                 },
             ),
         ],
@@ -158,10 +319,27 @@ def architecture_cocreation_agent(state: ResumePolishState) -> ResumePolishState
 
 def technical_doc_builder_agent(state: ResumePolishState) -> ResumePolishState:
     fallback = technical_doc_fallback(state.get("jd_profile", {}), state.get("human_constraints", {}), state.get("project_blueprint", {}))
-    technical_doc = llm_client.json_chat(
-        prompts.TECHNICAL_DOC_BUILDER_SYSTEM,
-        prompts.technical_doc_builder_user(state.get("jd_profile", {}), state.get("human_constraints", {}), state.get("project_blueprint", {})),
-        fallback,
+    project_name = state.get("project_blueprint", {}).get("project_name") or state.get("human_constraints", {}).get("project_name") or ""
+    technical_doc = _llm_json_with_hitl(
+        agent="technical_doc_builder",
+        system=prompts.TECHNICAL_DOC_BUILDER_SYSTEM,
+        user=prompts.technical_doc_builder_user(state.get("jd_profile", {}), state.get("human_constraints", {}), state.get("project_blueprint", {})),
+        fallback=fallback,
+        skip_output=_skipped_technical_doc(project_name, min_version=1),
+        expected_schema={
+            "version": "文档版本号",
+            "project_overview": "项目概览对象",
+            "architecture_design": "架构设计对象",
+            "core_tech_stack": "核心技术栈列表",
+            "design_decisions": "设计决策列表",
+            "failure_handling": "失败处理对象",
+            "observability": "可观测性对象",
+            "interview_defense": "面试防守对象",
+            "known_risks": "已知风险列表",
+            "evidence_needed": "待补证据列表",
+            "change_log": "变更记录列表",
+        },
+        state_summary={"project_name": project_name, "blueprint_keys": list(state.get("project_blueprint", {}).keys())},
     )
     technical_doc["version"] = int(technical_doc.get("version", 1) or 1)
     index_result = index_technical_doc(state["session_id"], technical_doc)
@@ -183,6 +361,8 @@ def technical_doc_builder_agent(state: ResumePolishState) -> ResumePolishState:
                     "version": technical_doc["version"],
                     "chunks": index_result.get("chunk_count", 0),
                     "inserted_chunks": index_result.get("inserted_chunks", 0),
+                    "used_fallback": "_llm_fallback_reason" in technical_doc,
+                    "fallback_action": technical_doc.get("_llm_fallback_action"),
                 },
             )
         ],
@@ -197,10 +377,19 @@ def resume_packaging_agent(state: ResumePolishState) -> ResumePolishState:
     )
     resume_context, render_log = _render_context_for_agent("resume_packaging", resume_hits)
     fallback = resume_package_fallback(blueprint.get("project_name", "多 Agent 简历项目闭环打磨系统"))
-    package = llm_client.json_chat(
-        prompts.RESUME_PACKAGING_SYSTEM,
-        prompts.resume_packaging_user(blueprint, state.get("jd_profile", {})) + f"\nRAG参考:\n{resume_context}",
-        fallback,
+    package = _llm_json_with_hitl(
+        agent="resume_packaging",
+        system=prompts.RESUME_PACKAGING_SYSTEM,
+        user=prompts.resume_packaging_user(blueprint, state.get("jd_profile", {})) + f"\nRAG参考:\n{resume_context}",
+        fallback=fallback,
+        skip_output=_skipped_resume_package(),
+        expected_schema={
+            "resume_project_paragraph": "最终简历项目段落，可为空",
+            "architecture_summary": "架构说明列表",
+            "interview_talking_points": "面试话术列表",
+            "metrics_claims": "指标声明列表",
+        },
+        state_summary={"project_name": blueprint.get("project_name", ""), "jd_profile": state.get("jd_profile", {})},
     )
     return {
         "current_agent": "resume_packaging",
@@ -215,6 +404,7 @@ def resume_packaging_agent(state: ResumePolishState) -> ResumePolishState:
                     "talking_points": len(package.get("interview_talking_points", [])),
                     "has_resume_paragraph": bool(package.get("resume_project_paragraph")),
                     "used_fallback": "_llm_fallback_reason" in package,
+                    "fallback_action": package.get("_llm_fallback_action"),
                 },
             ),
         ],
@@ -235,9 +425,10 @@ def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
     )
     attack_context, render_log = _render_context_for_agent("senior_interviewer", attack_hits)
     fallback = attack_report_fallback(round_no)
-    report = llm_client.json_chat(
-        prompts.SENIOR_INTERVIEWER_SYSTEM,
-        prompts.senior_interviewer_user(
+    report = _llm_json_with_hitl(
+        agent="senior_interviewer",
+        system=prompts.SENIOR_INTERVIEWER_SYSTEM,
+        user=prompts.senior_interviewer_user(
             round_no,
             state.get("project_blueprint", {}),
             state.get("resume_package", {}),
@@ -245,7 +436,20 @@ def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
             technical_context,
         )
         + f"\nRAG攻防参考:\n{attack_context}",
-        fallback,
+        fallback=fallback,
+        skip_output=_skipped_attack_report(round_no),
+        expected_schema={
+            "round": "当前轮次",
+            "severity": "风险等级",
+            "doc_based_questions": "基于技术文档的问题列表",
+            "doc_gaps": "技术文档缺口列表",
+            "architecture_vulnerabilities": "架构漏洞列表",
+            "landing_vulnerabilities": "落地风险列表",
+            "logic_vulnerabilities": "逻辑漏洞列表",
+            "recommended_doc_updates": "建议文档更新列表",
+            "questions": "面试追问列表",
+        },
+        state_summary={"round": round_no, "technical_hit_count": len(technical_hits), "project_name": state.get("project_blueprint", {}).get("project_name", "")},
     )
     return {
         "current_agent": "senior_interviewer",
@@ -272,6 +476,7 @@ def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
                     "severity": report.get("severity"),
                     "questions": len(report.get("questions", [])),
                     "used_fallback": "_llm_fallback_reason" in report,
+                    "fallback_action": report.get("_llm_fallback_action"),
                 },
             ),
         ],
@@ -341,12 +546,29 @@ def technical_doc_updater_agent(state: ResumePolishState) -> ResumePolishState:
     attack = state.get("attack_report", {})
     latest_repair = (state.get("iteration_history", []) or [{}])[-1]
     fallback = technical_doc_update_fallback(current_doc, attack, latest_repair)
-    technical_doc = llm_client.json_chat(
-        prompts.TECHNICAL_DOC_UPDATER_SYSTEM,
-        prompts.technical_doc_updater_user(current_doc, attack, latest_repair, state.get("human_constraints", {})),
-        fallback,
-    )
     min_version = int(current_doc.get("version", 1)) + 1 if current_doc else 1
+    project_name = current_doc.get("project_overview", {}).get("project_name") if isinstance(current_doc.get("project_overview"), dict) else ""
+    technical_doc = _llm_json_with_hitl(
+        agent="technical_doc_updater",
+        system=prompts.TECHNICAL_DOC_UPDATER_SYSTEM,
+        user=prompts.technical_doc_updater_user(current_doc, attack, latest_repair, state.get("human_constraints", {})),
+        fallback=fallback,
+        skip_output=_skipped_technical_doc(project_name or state.get("project_blueprint", {}).get("project_name", ""), min_version=min_version),
+        expected_schema={
+            "version": "文档版本号，必须不小于当前版本 + 1",
+            "project_overview": "项目概览对象",
+            "architecture_design": "架构设计对象",
+            "core_tech_stack": "核心技术栈列表",
+            "design_decisions": "设计决策列表",
+            "failure_handling": "失败处理对象",
+            "observability": "可观测性对象",
+            "interview_defense": "面试防守对象",
+            "known_risks": "已知风险列表",
+            "evidence_needed": "待补证据列表",
+            "change_log": "变更记录列表",
+        },
+        state_summary={"min_version": min_version, "round": state.get("iteration_round", 0), "attack_keys": list(attack.keys())},
+    )
     technical_doc["version"] = max(int(technical_doc.get("version", min_version) or min_version), min_version)
     index_result = index_technical_doc(state["session_id"], technical_doc)
     history_item = {
@@ -369,6 +591,8 @@ def technical_doc_updater_agent(state: ResumePolishState) -> ResumePolishState:
                     "round": state.get("iteration_round", 0),
                     "chunks": index_result.get("chunk_count", 0),
                     "inserted_chunks": index_result.get("inserted_chunks", 0),
+                    "used_fallback": "_llm_fallback_reason" in technical_doc,
+                    "fallback_action": technical_doc.get("_llm_fallback_action"),
                 },
             )
         ],

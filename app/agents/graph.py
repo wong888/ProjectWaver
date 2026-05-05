@@ -23,13 +23,17 @@ from app.agents.nodes import (
 )
 from app.agents.state import ResumePolishState
 from app.services.json_memory import new_session_id, save_session
+from app.services.langfuse_client import flush_langfuse, graph_observability_config
 
 
 CHECKPOINTER = InMemorySaver()
 
 
-def graph_config(session_id: str) -> Dict[str, Any]:
-    return {"configurable": {"thread_id": session_id}}
+def graph_config(session_id: str, run_name: str = "resume-polish-graph") -> Dict[str, Any]:
+    return {
+        "configurable": {"thread_id": session_id},
+        **graph_observability_config(session_id, run_name),
+    }
 
 
 def _interrupts(result: Dict[str, Any]) -> list[Dict[str, Any]]:
@@ -105,7 +109,8 @@ def run_full_pipeline(payload: Dict[str, Any]) -> Dict[str, Any]:
         "logs": [],
         "errors": [],
     }
-    result = build_resume_polish_graph().invoke(state, config=graph_config(state["session_id"]))
+    result = build_resume_polish_graph().invoke(state, config=graph_config(state["session_id"], "resume-polish-full"))
+    flush_langfuse()
     if "__interrupt__" in result:
         return {"session_id": state["session_id"], **result}
     save_session(result)
@@ -127,12 +132,14 @@ def start_hitl_pipeline(payload: Dict[str, Any]) -> Dict[str, Any]:
         "logs": [],
         "errors": [],
     }
-    result = build_resume_polish_graph().invoke(state, config=graph_config(session_id))
+    result = build_resume_polish_graph().invoke(state, config=graph_config(session_id, "resume-polish-hitl-start"))
+    flush_langfuse()
     return format_graph_response(session_id, result)
 
 
 def resume_hitl_pipeline(session_id: str, resume_value: Dict[str, Any]) -> Dict[str, Any]:
-    result = build_resume_polish_graph().invoke(Command(resume=resume_value), config=graph_config(session_id))
+    result = build_resume_polish_graph().invoke(Command(resume=resume_value), config=graph_config(session_id, "resume-polish-hitl-resume"))
+    flush_langfuse()
     return format_graph_response(session_id, result)
 
 
@@ -149,6 +156,7 @@ def get_checkpoint_state(session_id: str) -> Dict[str, Any]:
 def run_manual_polish(base_state: Dict[str, Any], focus: str, manual_input: str) -> Dict[str, Any]:
     state = {**base_state, "manual_focus": focus, "manual_input": manual_input}
     session_id = state.get("session_id") or new_session_id()
-    result = build_manual_polish_graph().invoke(state, config=graph_config(f"{session_id}:manual"))
+    result = build_manual_polish_graph().invoke(state, config=graph_config(f"{session_id}:manual", "resume-polish-manual"))
+    flush_langfuse()
     save_session(result)
     return result

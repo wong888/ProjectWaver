@@ -4,9 +4,8 @@ import json
 import re
 from typing import Any, Dict, List
 
-from openai import OpenAI
-
 from app.core.config import settings
+from app.services.langfuse_client import get_openai_client_class
 
 
 class LLMClient:
@@ -20,7 +19,8 @@ class LLMClient:
         self.provider = settings.llm_provider.lower()
         self.client = None
         if self.provider != "mock" and settings.llm_api_key:
-            self.client = OpenAI(
+            openai_client_class = get_openai_client_class()
+            self.client = openai_client_class(
                 api_key=settings.llm_api_key,
                 base_url=settings.llm_base_url,
                 timeout=settings.llm_timeout_seconds,
@@ -36,9 +36,16 @@ class LLMClient:
     def _parse_json(self, content: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
         try:
             return json.loads(content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
             match = re.search(r"\{.*\}", content, flags=re.S)
-            return json.loads(match.group(0)) if match else fallback
+            if match:
+                try:
+                    return json.loads(match.group(0))
+                except json.JSONDecodeError as nested_exc:
+                    exc = nested_exc
+            enriched = dict(fallback)
+            enriched["_llm_fallback_reason"] = f"{type(exc).__name__}: {exc}"
+            return enriched
 
     def _chat_create(self, system: str, user: str, use_json_mode: bool):
         payload: Dict[str, Any] = {
@@ -56,6 +63,10 @@ class LLMClient:
 
     def json_chat(self, system: str, user: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
         if not self.client:
+            if self.provider != "mock":
+                enriched = dict(fallback)
+                enriched["_llm_fallback_reason"] = "LLMClientUnavailable: LLM_PROVIDER 不是 mock，但未创建可用客户端，请检查 API Key 或配置。"
+                return enriched
             return fallback
 
         use_json_mode = settings.llm_json_mode.lower() in {"auto", "true", "1", "yes"}

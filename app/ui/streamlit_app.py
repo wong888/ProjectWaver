@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 import streamlit as st
 
-from app.agents.graph import run_full_pipeline, run_manual_polish
+from app.agents.graph import resume_hitl_pipeline, run_full_pipeline, run_manual_polish
 from app.services.json_memory import list_sessions, load_session
 from app.services.vector_store import vector_store
 
@@ -32,7 +32,63 @@ def show_json(title: str, data: Dict[str, Any]) -> None:
         st.json(data)
 
 
+def interrupt_values(state: Dict[str, Any]) -> list[Dict[str, Any]]:
+    values = []
+    for item in state.get("__interrupt__", state.get("interrupts", [])) or []:
+        value = getattr(item, "value", item)
+        if isinstance(value, dict):
+            values.append(value)
+    return values
+
+
+def render_llm_interrupt(state: Dict[str, Any]) -> None:
+    interrupts = interrupt_values(state)
+    if not interrupts:
+        return
+
+    current = interrupts[0]
+    st.warning(current.get("message", "流程已暂停，等待人工确认。"))
+    if current.get("agent"):
+        st.caption(f"暂停节点：{current.get('agent')}")
+    if current.get("reason"):
+        st.code(str(current.get("reason")))
+    if current.get("expected_schema"):
+        show_json("需要补充的结构化字段", current.get("expected_schema", {}))
+    if current.get("state_summary"):
+        show_json("当前上下文摘要", current.get("state_summary", {}))
+
+    action = st.radio("处理方式", ["skip", "retry", "manual"], format_func={"skip": "跳过本节点继续", "retry": "重试当前 LLM 请求", "manual": "手动填写本节点 JSON"}.get)
+    manual_output: Dict[str, Any] = {}
+    if action == "manual":
+        raw = st.text_area("manual_output JSON", value=json.dumps(current.get("suggested_skip_output", {}), ensure_ascii=False, indent=2), height=260)
+        try:
+            manual_output = json.loads(raw) if raw.strip() else {}
+        except json.JSONDecodeError as exc:
+            st.error(f"JSON 格式不合法：{exc}")
+            return
+
+    if st.button("继续流程", type="primary"):
+        resume_value: Dict[str, Any] = {"llm_fallback_decision": {"action": action}}
+        if action == "manual":
+            resume_value["llm_fallback_decision"]["manual_output"] = manual_output
+        response = resume_hitl_pipeline(state["session_id"], resume_value)
+        if response.get("status") == "completed":
+            st.session_state["state"] = response.get("state", {})
+            st.success("流程已恢复并完成。")
+        else:
+            st.session_state["state"] = {
+                "session_id": response.get("session_id", state.get("session_id")),
+                "__interrupt__": response.get("interrupts", []),
+            }
+            st.info("流程已恢复，但仍有新的人工确认点。")
+        st.rerun()
+
+
 def render_result(state: Dict[str, Any]) -> None:
+    if interrupt_values(state):
+        render_llm_interrupt(state)
+        return
+
     final_output = state.get("final_output", {})
     resume_package = final_output.get("resume_package", state.get("resume_package", {}))
     blueprint = final_output.get("project_blueprint", state.get("project_blueprint", {}))
@@ -171,7 +227,10 @@ with tab_run:
             }
             with st.spinner("六个 Agent 正在协同打磨，最多三轮自动攻防修复..."):
                 st.session_state["state"] = run_full_pipeline(payload)
-            st.success("闭环打磨完成，已写入本地 JSON 记忆。")
+            if interrupt_values(st.session_state["state"]):
+                st.warning("流程已暂停，等待你处理 LLM 失败后的降级策略。")
+            else:
+                st.success("闭环打磨完成，已写入本地 JSON 记忆。")
 
     if "state" in st.session_state:
         render_result(st.session_state["state"])

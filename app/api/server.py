@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from app.agents.graph import get_checkpoint_state, resume_hitl_pipeline, run_full_pipeline, run_manual_polish, start_hitl_pipeline
 from app.core.config import settings
 from app.services.json_memory import list_sessions, load_session
+from app.services.langfuse_client import langfuse_health
 from app.services.technical_doc_rag import search_technical_doc
 from app.services.vector_store import vector_store
 from scripts.ingest_rag import load_documents
@@ -58,6 +59,7 @@ def health() -> Dict[str, Any]:
         "app": settings.app_name,
         "llm_provider": settings.llm_provider,
         "llm_model": settings.llm_model,
+        "langfuse": langfuse_health(),
         "rag": vector_store.health(),
     }
 

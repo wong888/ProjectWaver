@@ -242,6 +242,19 @@ LLM_BASE_URL=https://api.openai.com/v1
 LLM_MODEL=gpt-4o-mini
 ```
 
+## 接入 Langfuse 观测
+
+项目已内置 Langfuse 开关。默认关闭，不会影响本地 `mock` 演示；设置 `LANGFUSE_ENABLED=true` 并配置 Key 后，会自动追踪 LangGraph 主流程、节点/工具调用，以及 OpenAI 兼容 LLM 请求。
+
+```env
+LANGFUSE_ENABLED=true
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_HOST=https://cloud.langfuse.com
+```
+
+使用自建 Langfuse 时，把 `LANGFUSE_HOST` 改成你的服务地址。启动 FastAPI 后可通过 `GET /health` 查看 `langfuse.enabled` 和 callback 是否可用。
+
 ## 简历可写亮点
 
 - 基于 LangGraph StateGraph 设计有状态多 Agent 编排，使用条件路由控制三轮攻防修复和合规收口。

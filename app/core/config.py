@@ -11,6 +11,13 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 load_dotenv(ROOT_DIR / ".env")
 
 
+def _langfuse_enabled() -> bool:
+    explicit = os.getenv("LANGFUSE_ENABLED")
+    if explicit is not None and explicit.strip():
+        return explicit.lower() in {"1", "true", "yes", "on"}
+    return bool(os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY"))
+
+
 @dataclass(frozen=True)
 class Settings:
     """集中管理运行时配置，便于本地演示和 Docker 部署切换。"""
@@ -26,6 +33,9 @@ class Settings:
     llm_json_mode: str = os.getenv("LLM_JSON_MODE", "auto")
     llm_max_prompt_chars: int = int(os.getenv("LLM_MAX_PROMPT_CHARS", "5000"))
     llm_max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "1200"))
+
+    langfuse_enabled: bool = _langfuse_enabled()
+    langfuse_host: str = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
     milvus_host: str = os.getenv("MILVUS_HOST", "localhost")
     milvus_port: str = os.getenv("MILVUS_PORT", "19530")

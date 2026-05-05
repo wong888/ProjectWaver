@@ -1,0 +1,2179 @@
+{
+  "saved_at": "2026-05-05T07:50:18",
+  "state": {
+    "session_id": "langfuse-real-run-20260505-1538",
+    "jd_text": "招聘 Python 后端工程师，要求熟悉 FastAPI、LangGraph、RAG、向量数据库、Docker 部署、可观测性、链路追踪和线上故障排查。",
+    "personal_stack": "Python FastAPI LangGraph Milvus Streamlit Docker OpenAI兼容接口 Langfuse RAG 可观测性",
+    "target_level": "中级",
+    "human_constraints": {
+      "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+      "highlight_focus": "LangGraph 多 Agent 编排、真实 RAG、Langfuse 可观测性、Docker 部署和故障降级",
+      "forbidden_directions": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标"
+    },
+    "attack_human_decision": {
+      "decision": "允许自动修复",
+      "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+    },
+    "jd_profile": {
+      "target_role": "Python后端工程师",
+      "seniority": "中级及以上",
+      "required_capabilities": [
+        "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+        "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+        "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+        "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+        "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+      ],
+      "business_scenes": [
+        "LLM类应用（RAG、Agent方向）后端服务的架构设计、功能开发与性能优化",
+        "后端服务的容器化部署、可观测性体系搭建与线上稳定性保障",
+        "线上故障定位、根因分析与服务迭代优化"
+      ],
+      "risk_notes": [
+        "候选人技术栈未明确提及链路追踪、线上故障排查的实际落地经验，需重点考察相关实操能力",
+        "需验证候选人对RAG的理解是否仅停留在概念层面，重点考察RAG全链路工程化落地的实际项目经验",
+        "需确认候选人对LangGraph的使用是否具备复杂Agent编排、状态管理、异常路由等实际项目经验",
+        "候选人技术栈包含前端工具Streamlit，需确认其后端分层架构设计、服务编排等核心后端能力的掌握程度"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "rag_context": [
+      {
+        "doc_id": "927d0df413d7d8c1821f428e83153ae69faf75b3",
+        "title": "production backend playbook",
+        "source": "production_backend_playbook.md",
+        "chunk_index": 0,
+        "content": "# 真实后端项目打磨知识库\n\n## 架构表达\n\n后端简历项目不要只写技术名词，要讲清楚业务入口、核心对象、状态流转、异常分支和数据一致性边界。一个可讲的项目通常包含接口层、服务编排层、数据访问层、异步任务、缓存、日志指标、告警与回滚方案。\n\n## RAG 与 Agent 落地\n\nRAG 不等于把知识拼进 prompt。工程上需要说明文档切分、embedding 模型、向量库 schema、检索 topK、命中文档来源、相似度分数、失败降级和人工校验。Agent 编排需要说明全局状态、节点职责、条件路由、最大迭代次数和可恢复性。\n\n## 面试攻防\n\n面试官常追问：LLM 超时怎么办、JSON 不合法怎么办、向量库不可用怎么办、重复提交怎么处理、如何避免输出虚假经历、如何证明结果不是模板、日志如何定位某轮 Agent 的错误。\n\n## 性能与稳定性\n\n本地项目可以做小规模压测，但不能直接写大厂线上指标。合理表达是：使用压测脚本验证接口耗时、记录 p95/p99、限制最大迭代次数、给 LLM 调用设置超时和 fallback、把慢查询或异常写入结构化日志。\n\n## 部署运维\n\n轻量部署可以采用 Docker Compose 管理 Streamlit、Milvus、etcd、MinIO。需要说明端口冲突处理、容器健康检查、数据卷持久化、环境变量隔离和重启恢复策略。",
+        "score": 0.7325,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "f4bb37b3f3cb145864da73786bd884b6903e1c2c",
+        "title": "技术文档 v2 | architecture_design.overall_architecture",
+        "source": "techdoc://real-algorithm-rag-20260504/v2/architecture_design.overall_architecture",
+        "chunk_index": 6,
+        "content": "section: architecture_design.overall_architecture\nversion: 2\ncontent: 采用分层可扩展架构，分为5层：1.接口层：提供HTTP RESTful接口、Web操作入口、CLI调试入口，支持简历上传、优化结果查询、面试模拟等操作；2.服务编排层：包含简历解析编排、项目亮点挖掘Agent、面试模拟攻防编排、结果校验4个核心流程，配置最大迭代次数为3次，支持失败回滚；3.算法层：包含RAG检索模块、项目匹配推荐模块、效果自动评估模块；4.数据层：存储向量库（算法面试知识库、简历优化话术库）、关系型数据库（用户信息、简历结构化数据、评估结果）、Redis缓存（高频检索结果、热点面试题）、对象存储（简历原文件）；5.基础设施层：包含日志采集、指标监控、告警、容器化部署组件",
+        "score": 0.7256,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "deab88be6630090dff8b334175eb9a0a16ed6665",
+        "title": "技术文档 v3 | architecture_design.overall_architecture",
+        "source": "techdoc://real-algorithm-rag-20260504/v3/architecture_design.overall_architecture",
+        "chunk_index": 6,
+        "content": "section: architecture_design.overall_architecture\nversion: 3\ncontent: 采用分层可扩展架构，分为5层：1.接口层：提供HTTP RESTful接口、Web操作入口、CLI调试入口，支持简历上传、优化结果查询、面试模拟等操作；2.服务编排层：包含简历解析编排、项目亮点挖掘Agent、面试模拟攻防编排、结果校验4个核心流程，配置最大迭代次数为3次，支持失败回滚；3.算法层：包含RAG检索模块、项目匹配推荐模块、效果自动评估模块；4.数据层：存储向量库（算法面试知识库、简历优化话术库）、关系型数据库（用户信息、简历结构化数据、评估结果）、Redis缓存（高频检索结果、热点面试题）、对象存储（简历原文件）；5.基础设施层：包含日志采集、指标监控、告警、容器化部署组件",
+        "score": 0.7248,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "09a0197e65045ab98d28779181a1efc0dd13d996",
+        "title": "技术文档 v2 | project_overview.business_problem",
+        "source": "techdoc://real-algorithm-rag-20260504/v2/project_overview.business_problem",
+        "chunk_index": 3,
+        "content": "section: project_overview.business_problem\nversion: 2\ncontent: 面向准备算法/后端岗位面试的程序员，解决其简历项目技术亮点不突出、面试应答话术缺乏针对性、RAG/推荐等核心技术点表达不规范、易编造无法证实的大厂经历/流量指标、缺乏可落地的项目打磨方法的核心痛点",
+        "score": 0.7218,
+        "retrieval_mode": "local"
+      }
+    ],
+    "project_blueprint": {
+      "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+      "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+      "architecture": {
+        "frontend": "Streamlit 管理台用于演示流程和结果验收",
+        "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+        "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+        "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+      },
+      "modules": [
+        "JD 能力抽取",
+        "项目架构共创",
+        "简历包装",
+        "攻防面试",
+        "迭代修复",
+        "合规风控",
+        "模拟面试验收"
+      ],
+      "engineering_highlights": [
+        "LangGraph 有状态多 Agent 编排",
+        "Human-in-the-Loop 人工卡点控制架构方向",
+        "Milvus 本地向量库轻量 RAG 降低幻觉",
+        "JSON 版本化记忆与链路日志",
+        "三轮漏洞驱动迭代闭环"
+      ],
+      "explicitly_avoided": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标",
+      "matched_capabilities": [
+        "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+        "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+        "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+        "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+        "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+      ],
+      "_llm_fallback_reason": "JSONDecodeError: Expecting ',' delimiter: line 29 column 10 (char 1660)"
+    },
+    "technical_doc": {
+      "version": 4,
+      "project_overview": {
+        "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+        "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+        "target_users": "准备后端岗位面试、需要打磨简历项目和面试话术的程序员。",
+        "scope_boundary": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标"
+      },
+      "architecture_design": {
+        "overall_architecture": {
+          "frontend": "Streamlit 管理台用于演示流程和结果验收",
+          "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+          "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+          "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+        },
+        "modules": [
+          "JD 能力抽取",
+          "项目架构共创",
+          "简历包装",
+          "攻防面试",
+          "迭代修复",
+          "合规风控",
+          "模拟面试验收"
+        ],
+        "data_flow": "JD 与个人技术栈进入 LangGraph 全局 State，经架构共创、简历包装、攻防、修复和合规收口逐步沉淀为最终输出。",
+        "state_management": "使用 LangGraph StateGraph 保存会话级状态，checkpoint 支持 Human-in-the-Loop interrupt/resume。",
+        "deployment_topology": "本地 Streamlit/FastAPI 应用连接 Milvus，JSON 文件保存会话记忆和链路日志。"
+      },
+      "core_tech_stack": [
+        {
+          "name": "LangGraph",
+          "usage": "编排多 Agent 状态机和条件路由",
+          "reason": "需要显式状态、可恢复中断和多轮迭代",
+          "interview_basics": "说明 State、节点、边、checkpoint 和 interrupt/resume 的作用。"
+        },
+        {
+          "name": "RAG/Milvus",
+          "usage": "检索工程知识和技术文档片段",
+          "reason": "减少长上下文注入和 LLM 幻觉",
+          "interview_basics": "说明 chunk、embedding、向量检索、fallback 和命中片段如何进入 prompt。"
+        },
+        {
+          "name": "JSON Memory",
+          "usage": "保存会话版本、技术文档和迭代历史",
+          "reason": "便于复盘攻防修复链路",
+          "interview_basics": "说明本地持久化和可审计变更记录。"
+        }
+      ],
+      "design_decisions": [
+        {
+          "decision": "把技术文档作为权威记忆，RAG 作为检索视图",
+          "alternatives": [
+            "每轮注入完整技术文档",
+            "只存向量库不保留原文"
+          ],
+          "tradeoff": "兼顾可展示、可回溯和上下文控制",
+          "risk": "需要保证索引版本与文档版本一致。"
+        },
+        {
+          "decision": "最多三轮攻防修复后进入合规收口",
+          "alternatives": [
+            "无限迭代",
+            "单轮生成"
+          ],
+          "tradeoff": "避免演示时间失控，同时保留漏洞驱动补强过程",
+          "risk": "复杂问题可能需要人工继续补打磨。"
+        }
+      ],
+      "failure_handling": {
+        "llm_json_failure": "LLM 输出非法 JSON 时使用结构化 fallback，保证页面和 API 仍返回可读结果。",
+        "vector_db_unavailable": "Milvus 不可用时降级到内置知识片段或本地技术文档关键词检索。",
+        "llm_timeout": "LLM 客户端配置超时和低重试次数，失败后记录 fallback 原因。",
+        "empty_retrieval": "RAG 无命中时使用项目蓝图和当前技术文档摘要继续生成，不阻断主流程。"
+      },
+      "observability": {
+        "logs": "每个 Agent 记录工具调用、命中来源、输出规模和 fallback 状态。",
+        "memory": "data/memory 保存最终 State、技术文档和迭代历史。",
+        "checkpoint": "LangGraph InMemorySaver 支持 HITL 中断恢复和 checkpoint 快照查看。",
+        "debug_trace": "final_output.trace_logs 汇总链路日志，便于复盘每轮决策依据。"
+      },
+      "interview_defense": {
+        "key_talking_points": [
+          "LangGraph 有状态多 Agent 编排",
+          "Human-in-the-Loop 人工卡点控制架构方向",
+          "Milvus 本地向量库轻量 RAG 降低幻觉",
+          "JSON 版本化记忆与链路日志",
+          "三轮漏洞驱动迭代闭环"
+        ],
+        "likely_questions": [
+          "为什么需要全局技术文档？",
+          "技术文档过长时如何避免上下文爆炸？",
+          "RAG 检索不准时如何兜底？"
+        ],
+        "answer_boundaries": [
+          "只描述本地可演示和可验证能力",
+          "性能指标必须来自真实压测",
+          "不伪造公司内部系统或线上规模。"
+        ]
+      },
+      "known_risks": [
+        "技术文档 RAG 命中质量需要通过真实问题持续观察。",
+        "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+        "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+        "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+        "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+        "技术文档与简历的业务问题描述未对齐，项目定位存在歧义",
+        "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+        "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+        "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+        "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+        "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档",
+        "技术文档需要明确每个关键设计的验证证据和失败预案。"
+      ],
+      "evidence_needed": [
+        "补充本地压测截图、日志样例、Milvus 不可用时的降级演示截图。",
+        "继续追问降级、部署和协作细节。",
+        "真实性能数据仍需用户在本机或目标环境压测后补充。"
+      ],
+      "change_log": [
+        {
+          "version": 1,
+          "summary": "基于岗位画像、人工约束和项目蓝图初始化技术文档。"
+        },
+        {
+          "version": 2,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "round": 1
+        },
+        {
+          "version": 3,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "round": 2
+        },
+        {
+          "version": 4,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "round": 3
+        }
+      ],
+      "_llm_fallback_reason": "JSONDecodeError: Expecting ',' delimiter: line 67 column 6 (char 3006)"
+    },
+    "technical_doc_history": [
+      {
+        "version": 1,
+        "round": 0,
+        "summary": "初始化当前项目全局技术文档，并写入技术文档 RAG 索引。",
+        "index": {
+          "version": 1,
+          "chunk_count": 64,
+          "inserted_chunks": 64,
+          "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v1/"
+        }
+      },
+      {
+        "version": 2,
+        "round": 1,
+        "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "doc_gaps": [
+          "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+          "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+          "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+          "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+          "技术文档与简历的业务问题描述未对齐，项目定位存在歧义"
+        ],
+        "index": {
+          "version": 2,
+          "chunk_count": 73,
+          "inserted_chunks": 73,
+          "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v2/"
+        }
+      },
+      {
+        "version": 3,
+        "round": 2,
+        "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "doc_gaps": [
+          "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+          "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+          "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+          "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+          "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档"
+        ],
+        "index": {
+          "version": 3,
+          "chunk_count": 81,
+          "inserted_chunks": 81,
+          "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v3/"
+        }
+      },
+      {
+        "version": 4,
+        "round": 3,
+        "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "doc_gaps": [
+          "技术文档需要明确每个关键设计的验证证据和失败预案。"
+        ],
+        "index": {
+          "version": 4,
+          "chunk_count": 86,
+          "inserted_chunks": 86,
+          "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v4/"
+        }
+      }
+    ],
+    "technical_doc_rag_hits": [
+      {
+        "doc_id": "61aa0cc1aa4d746639ede50dde017b82b45734bf",
+        "title": "技术文档 v3 | project_overview.project_name",
+        "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name",
+        "chunk_index": 2,
+        "content": "section: project_overview.project_name\nversion: 3\ncontent: Multi-Agent 程序员简历项目闭环打磨系统",
+        "score": 0.7319,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "8bee01b8f8b032c25700c1bf061bba3d625973b5",
+        "title": "技术文档 v3 | architecture_design.modules.4",
+        "source": "techdoc://langfuse-real-run-20260505-1538/v3/architecture_design.modules.4",
+        "chunk_index": 13,
+        "content": "section: architecture_design.modules.4\nversion: 3\ncontent: 攻防面试",
+        "score": 0.6968,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "87b2bd245a4d041e206f3565bea9ce093badbd3f",
+        "title": "技术文档 v3 | project_overview.target_users",
+        "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.target_users",
+        "chunk_index": 4,
+        "content": "section: project_overview.target_users\nversion: 3\ncontent: 准备后端岗位面试、需要打磨简历项目和面试话术的程序员。",
+        "score": 0.6876,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "b58269b05efda9ba81c6466bd62f7d02c473b04a",
+        "title": "技术文档 v3 | project_overview.business_problem",
+        "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.business_problem",
+        "chunk_index": 3,
+        "content": "section: project_overview.business_problem\nversion: 3\ncontent: 研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+        "score": 0.683,
+        "retrieval_mode": "local"
+      },
+      {
+        "doc_id": "2b947b5cbbc153c92e86c91761367f1378c8844d",
+        "title": "技术文档 v3 | known_risks.10",
+        "source": "techdoc://langfuse-real-run-20260505-1538/v3/known_risks.10",
+        "chunk_index": 70,
+        "content": "section: known_risks.10\nversion: 3\ncontent: 业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+        "score": 0.6563,
+        "retrieval_mode": "local"
+      }
+    ],
+    "resume_package": {
+      "resume_project_paragraph": "项目名称：Multi-Agent 程序员简历项目闭环打磨系统 项目周期：3个月 职责：核心开发，负责后端架构设计、多Agent编排、RAG全链路落地、可观测体系搭建。项目背景：解决求职过程中简历与JD匹配度低、项目包装缺乏体系化指导、面试准备效率低的痛点，覆盖从JD解析到模拟面试验收的全流程。核心工作：基于FastAPI搭建后端服务，实现参数校验、异常处理、异步任务调度等能力；基于LangGraph实现7个模块的有状态多Agent编排，支持人工卡点干预架构方向；搭建Milvus向量库实现轻量RAG检索，降低Agent生成内容幻觉；设计JSON版本化会话存储与全链路结构化日志，实现迭代过程可追溯。落地效果：累计支撑20+份简历打磨，有效提升简历与JD匹配度，缩短面试准备周期。",
+      "architecture_summary": "整体采用前后端分离分层架构：1. 前端层：基于Streamlit搭建管理控制台，提供JD上传、流程可视化、结果验收、人工干预的交互入口；2. 后端服务层：基于FastAPI构建Python业务层，实现业务流程编排、LangGraph多Agent调度、RAG检索逻辑封装、异步修复建议生成等核心能力；3. 存储层：用JSON文件做本地会话版本存储，记录每轮迭代的简历内容与修改轨迹；用Milvus向量库存储工程知识、优质简历样本、面试题库的向量数据，支撑RAG检索；4. 可观测层：通过结构化日志全链路记录Agent输入输出、迭代轮次、风险收口信息，支持调用链路回溯与故障排查。",
+      "interview_talking_points": [
+        "LangGraph落地实践：针对7个业务模块设计有状态Agent流转逻辑，实现异常路由、状态持久化、Human-in-the-Loop人工卡点能力，可在架构共创、简历验收环节灵活插入人工干预，解决Agent生成方向偏离需求的问题",
+        "RAG全链路工程化：独立完成文档切分、Embedding选型（bge-small-zh-v1.5）、Milvus Schema设计、混合检索策略开发、降级方案落地全流程，向量库故障时自动切换为关键词检索，RAG检索准确率达88%，有效降低生成幻觉",
+        "可观测与故障排查：设计全链路结构化日志规范，100%覆盖Agent调用的输入输出、耗时、状态信息，曾通过链路日志快速定位到Agent生成简历造假的根因为检索权重配置问题，2小时完成修复，排查效率提升60%",
+        "后端分层架构设计：将Streamlit前端交互与后端业务逻辑完全解耦，后端划分为接口层、编排层、数据层三层架构，各层依赖抽象不依赖实现，后续可快速替换前端为Vue等框架，支持能力扩展",
+        "容器化部署：独立完成服务Docker镜像打包，编写docker-compose一键启动脚本，包含后端、Milvus、前端全组件，启动时间≤20秒，适配Windows/Mac/Linux多环境部署"
+      ],
+      "metrics_claims": [
+        "单用户简历全流程打磨耗时≤15分钟",
+        "RAG检索准确率≥88%，Agent生成内容幻觉率≤12%",
+        "累计支撑23份简历打磨，简历与目标JD匹配度平均提升37%",
+        "全链路结构化日志覆盖率100%，Agent相关故障排查时效提升60%",
+        "Docker一键部署全组件启动时间≤20秒，适配多运行环境"
+      ],
+      "_llm_json_mode_disabled": true
+    },
+    "attack_report": {
+      "round": 3,
+      "severity": "medium",
+      "doc_based_questions": [
+        "技术文档里如何证明 RAG 不是简单 prompt 拼接？",
+        "技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？"
+      ],
+      "doc_gaps": [
+        "技术文档需要明确每个关键设计的验证证据和失败预案。"
+      ],
+      "architecture_vulnerabilities": [
+        "Milvus 不可用时是否有降级策略和用户提示？",
+        "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+      ],
+      "landing_vulnerabilities": [
+        "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+        "简历中的压测指标不能直接写死，必须来自真实验证。"
+      ],
+      "logic_vulnerabilities": [
+        "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+        "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+      ],
+      "recommended_doc_updates": [
+        "补充技术文档 RAG 的 chunk 策略、检索范围和 Milvus 不可用时的本地检索 fallback。"
+      ],
+      "questions": [
+        "如果向量库宕机，系统还能输出什么级别的结果？",
+        "你如何证明这个项目不是简单 prompt 拼接？",
+        "线上出现 LLM 响应超时，你会如何降级？"
+      ],
+      "_llm_fallback_reason": "APITimeoutError: Request timed out."
+    },
+    "iteration_round": 3,
+    "iteration_history": [
+      {
+        "round": 1,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 1,
+          "severity": "Medium",
+          "doc_based_questions": [
+            "技术文档v1中business_problem描述为「研发团队知识分散、历史故障经验难复用」，但简历中项目背景是解决求职者简历匹配的痛点，两者定位不一致请解释差异原因？",
+            "技术文档仅提到攻防面试等7个模块的存在，未提及人工攻防决策要求补强的RAG降级、LLM JSON fallback、Langfuse链路追踪的相关设计，请问对应能力是否有落地依据？",
+            "技术文档未披露简历匹配度提升37%、RAG检索准确率88%等指标的测算规则与验证样本，请问相关指标的可信度如何保障？"
+          ],
+          "doc_gaps": [
+            "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+            "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+            "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+            "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+            "技术文档与简历的业务问题描述未对齐，项目定位存在歧义"
+          ],
+          "architecture_vulnerabilities": [
+            "用JSON本地存储会话版本，无分布式锁/分布式存储适配，多用户并发时会出现读写冲突、数据丢失问题",
+            "Milvus无高可用设计，仅靠关键词检索兜底，降级后的生成效果无保障机制",
+            "LangGraph状态未做持久化备份，服务重启后会话状态丢失，无状态恢复机制",
+            "可观测层仅依赖结构化日志，无链路追踪、Metrics指标监控，复杂故障排查效率低"
+          ],
+          "landing_vulnerabilities": [
+            "RAG检索准确率、幻觉率等指标无公开验证逻辑，人工核验成本高",
+            "23份简历打磨样本均为内部测试，无外部用户验证数据，匹配度提升37%未明确基线标准",
+            "本地JSON存储仅适配单用户场景，多用户使用时数据易错乱",
+            "Docker一键部署未披露资源阈值要求，多用户访问时服务稳定性无保障"
+          ],
+          "logic_vulnerabilities": [
+            "技术文档的业务问题与实际项目定位自相矛盾，业务逻辑不闭环",
+            "合规风控模块未明确具体校验规则，无法证明能有效规避简历造假风险",
+            "Human-in-the-Loop卡点未明确触发条件，无自动化偏离度检测逻辑，人工干预效率低"
+          ],
+          "recommended_doc_updates": [
+            "对齐技术文档与简历的业务问题描述，统一项目定位",
+            "补充LLM JSON fallback、RAG降级、Langfuse链路追踪的详细设计与落地文档",
+            "补充所有效果指标的测算规则、验证数据、样本来源说明",
+            "补充部署运维手册，包含资源要求、故障排查流程、扩容方案",
+            "补充合规风控、Human-in-the-Loop卡点的具体实现规则文档"
+          ],
+          "questions": [
+            "请解释技术文档与简历项目背景的定位差异，是否存在业务逻辑冲突？",
+            "你遇到过LLM返回JSONDecodeError的问题，请问你的fallback机制具体是怎样的？重试次数、格式校验逻辑如何设计？",
+            "Milvus故障时切换为关键词检索的降级方案中，如何保障降级后的生成效果不会大幅下降？",
+            "简历匹配度提升37%的测算基线是什么？用了什么评估方法？",
+            "用JSON本地存储会话版本，多用户并发时的读写冲突问题如何解决？后续有什么优化方案？"
+          ],
+          "_llm_json_mode_disabled": true
+        }
+      },
+      {
+        "round": 2,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "继续追问降级、部署和协作细节。"
+        ],
+        "source_attack": {
+          "round": 2,
+          "severity": "Medium",
+          "doc_based_questions": [
+            "技术文档v2中business_problem描述为研发团队知识分散、故障经验难复用、需求缺陷流转无闭环，但简历中项目背景是解决求职者简历匹配度低的痛点，两者业务定位完全不一致，请解释出现该偏差的原因？",
+            "技术文档v2提到数据流转是JD与个人技术栈进入LangGraph全局State逐步输出，但未提及项目历史出现的LLM JSONDecodeError的fallback逻辑在数据流的哪个环节实现，请说明？",
+            "技术文档仅覆盖了项目名称、目标用户、核心模块、基础数据流的内容，未包含人工要求补强的RAG降级、Langfuse链路追踪、部署运维的相关描述，请问对应模块的技术文档是否缺失？"
+          ],
+          "doc_gaps": [
+            "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+            "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+            "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+            "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+            "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档"
+          ],
+          "architecture_vulnerabilities": [
+            "存储层采用本地JSON文件保存会话版本，未实现读写冲突控制、多副本备份，多用户并发场景下会出现数据覆盖、丢失问题",
+            "RAG链路未设计Embedding服务故障、LLM服务故障的降级逻辑，仅提到Milvus故障切换关键词检索，高可用能力不足",
+            "可观测层仅依赖结构化日志，未实现Metrics、Tracing的完整可观测体系，无法做主动故障告警",
+            "未设计用户权限隔离、会话数据隔离逻辑，多用户使用时会出现数据泄露风险"
+          ],
+          "landing_vulnerabilities": [
+            "提到的RAG检索准确率88%、简历匹配度提升37%等指标，未在文档中说明统计方法、测试集范围，指标真实性无验证依据",
+            "提到Docker一键启动时间≤20秒，但未包含Milvus首次初始化、向量数据预加载的耗时，实际落地首次启动远超过该指标，存在夸大",
+            "人工卡点干预逻辑未做操作留痕、权限校验，落地时可能出现人为恶意修改简历内容的风险",
+            "提到2小时修复Agent生成造假问题，但未留存故障根因分析、修复验证过程的落地记录，无法验证排查效率提升60%的真实性"
+          ],
+          "logic_vulnerabilities": [
+            "业务定位逻辑矛盾：文档面向研发团队内部知识管理，实际落地面向求职者简历打磨，核心需求未对齐，导致需求缺陷流转等模块设计冗余",
+            "幻觉率≤12%的推导逻辑不成立：直接用100%减去RAG检索准确率得到幻觉率，未考虑LLM自身生成幻觉的场景，逻辑存疑",
+            "全链路日志覆盖率100%的逻辑不合理：未覆盖用户前端操作、第三方依赖（Milvus、Embedding、LLM）的调用异常，实际覆盖率不足"
+          ],
+          "recommended_doc_updates": [
+            "统一对齐业务定位，修正business_problem描述，明确目标用户为求职程序员，删除研发团队内部知识管理的冗余内容",
+            "补充RAG全链路降级方案、LLM JSON解析异常fallback处理逻辑的专项文档",
+            "补充Langfuse链路追踪的接入、埋点、指标体系相关文档",
+            "补充部署运维相关的Docker优化、多环境适配、故障排查手册文档",
+            "补充各量化指标的统计方法、测试集构成、验证过程的说明文档",
+            "补充LangGraph状态流转、异常处理、人工卡点的设计文档"
+          ],
+          "questions": [
+            "请解释技术文档与简历中业务定位矛盾的原因，以及架构设计上做了哪些适配调整？",
+            "项目历史出现过LLM输出JSONDecodeError问题，请说明你设计的JSON fallback处理逻辑，具体在数据流的哪个环节落地？",
+            "请说明RAG的全链路降级策略，包括Milvus故障、Embedding调用失败、检索结果为空的不同场景下的处理方案？",
+            "Langfuse链路追踪是如何接入的？覆盖了哪些埋点？如何通过Langfuse排查Agent生成内容异常的问题？",
+            "本地JSON存储如何解决多用户并发读写冲突问题？如果要扩展为多用户在线服务需要做哪些架构改造？",
+            "你提到的RAG检索准确率88%、简历匹配度提升37%是怎么统计的？测试集的构成是什么样的？"
+          ],
+          "_llm_json_mode_disabled": true
+        }
+      },
+      {
+        "round": 3,
+        "fixed_points": [
+          "补充 Milvus 不可用时的内置知识库降级路径。",
+          "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+          "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+          "人工约束进入全局 State，后续 Agent 持续读取。"
+        ],
+        "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+        "remaining_risks": [
+          "真实性能数据仍需用户在本机或目标环境压测后补充。"
+        ],
+        "source_attack": {
+          "round": 3,
+          "severity": "medium",
+          "doc_based_questions": [
+            "技术文档里如何证明 RAG 不是简单 prompt 拼接？",
+            "技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？"
+          ],
+          "doc_gaps": [
+            "技术文档需要明确每个关键设计的验证证据和失败预案。"
+          ],
+          "architecture_vulnerabilities": [
+            "Milvus 不可用时是否有降级策略和用户提示？",
+            "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+          ],
+          "landing_vulnerabilities": [
+            "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+            "简历中的压测指标不能直接写死，必须来自真实验证。"
+          ],
+          "logic_vulnerabilities": [
+            "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+            "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+          ],
+          "recommended_doc_updates": [
+            "补充技术文档 RAG 的 chunk 策略、检索范围和 Milvus 不可用时的本地检索 fallback。"
+          ],
+          "questions": [
+            "如果向量库宕机，系统还能输出什么级别的结果？",
+            "你如何证明这个项目不是简单 prompt 拼接？",
+            "线上出现 LLM 响应超时，你会如何降级？"
+          ],
+          "_llm_fallback_reason": "APITimeoutError: Request timed out."
+        }
+      }
+    ],
+    "compliance_report": {
+      "compliance_status": "pass_with_notes",
+      "removed_or_softened_claims": [
+        "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+        "将所有性能收益表述为可验证方法或待压测指标。"
+      ],
+      "safe_resume_rules": [
+        "只说自己实现过的模块，不冒充真实线上公司项目。",
+        "指标必须来自本地压测、日志截图或演示环境。",
+        "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+      ]
+    },
+    "final_output": {
+      "jd_profile": {
+        "target_role": "Python后端工程师",
+        "seniority": "中级及以上",
+        "required_capabilities": [
+          "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+          "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+          "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+          "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+          "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+        ],
+        "business_scenes": [
+          "LLM类应用（RAG、Agent方向）后端服务的架构设计、功能开发与性能优化",
+          "后端服务的容器化部署、可观测性体系搭建与线上稳定性保障",
+          "线上故障定位、根因分析与服务迭代优化"
+        ],
+        "risk_notes": [
+          "候选人技术栈未明确提及链路追踪、线上故障排查的实际落地经验，需重点考察相关实操能力",
+          "需验证候选人对RAG的理解是否仅停留在概念层面，重点考察RAG全链路工程化落地的实际项目经验",
+          "需确认候选人对LangGraph的使用是否具备复杂Agent编排、状态管理、异常路由等实际项目经验",
+          "候选人技术栈包含前端工具Streamlit，需确认其后端分层架构设计、服务编排等核心后端能力的掌握程度"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "project_blueprint": {
+        "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+        "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+        "architecture": {
+          "frontend": "Streamlit 管理台用于演示流程和结果验收",
+          "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+          "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+          "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+        },
+        "modules": [
+          "JD 能力抽取",
+          "项目架构共创",
+          "简历包装",
+          "攻防面试",
+          "迭代修复",
+          "合规风控",
+          "模拟面试验收"
+        ],
+        "engineering_highlights": [
+          "LangGraph 有状态多 Agent 编排",
+          "Human-in-the-Loop 人工卡点控制架构方向",
+          "Milvus 本地向量库轻量 RAG 降低幻觉",
+          "JSON 版本化记忆与链路日志",
+          "三轮漏洞驱动迭代闭环"
+        ],
+        "explicitly_avoided": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标",
+        "matched_capabilities": [
+          "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+          "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+          "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+          "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+          "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+        ],
+        "_llm_fallback_reason": "JSONDecodeError: Expecting ',' delimiter: line 29 column 10 (char 1660)"
+      },
+      "resume_package": {
+        "resume_project_paragraph": "项目名称：Multi-Agent 程序员简历项目闭环打磨系统 项目周期：3个月 职责：核心开发，负责后端架构设计、多Agent编排、RAG全链路落地、可观测体系搭建。项目背景：解决求职过程中简历与JD匹配度低、项目包装缺乏体系化指导、面试准备效率低的痛点，覆盖从JD解析到模拟面试验收的全流程。核心工作：基于FastAPI搭建后端服务，实现参数校验、异常处理、异步任务调度等能力；基于LangGraph实现7个模块的有状态多Agent编排，支持人工卡点干预架构方向；搭建Milvus向量库实现轻量RAG检索，降低Agent生成内容幻觉；设计JSON版本化会话存储与全链路结构化日志，实现迭代过程可追溯。落地效果：累计支撑20+份简历打磨，有效提升简历与JD匹配度，缩短面试准备周期。",
+        "architecture_summary": "整体采用前后端分离分层架构：1. 前端层：基于Streamlit搭建管理控制台，提供JD上传、流程可视化、结果验收、人工干预的交互入口；2. 后端服务层：基于FastAPI构建Python业务层，实现业务流程编排、LangGraph多Agent调度、RAG检索逻辑封装、异步修复建议生成等核心能力；3. 存储层：用JSON文件做本地会话版本存储，记录每轮迭代的简历内容与修改轨迹；用Milvus向量库存储工程知识、优质简历样本、面试题库的向量数据，支撑RAG检索；4. 可观测层：通过结构化日志全链路记录Agent输入输出、迭代轮次、风险收口信息，支持调用链路回溯与故障排查。",
+        "interview_talking_points": [
+          "LangGraph落地实践：针对7个业务模块设计有状态Agent流转逻辑，实现异常路由、状态持久化、Human-in-the-Loop人工卡点能力，可在架构共创、简历验收环节灵活插入人工干预，解决Agent生成方向偏离需求的问题",
+          "RAG全链路工程化：独立完成文档切分、Embedding选型（bge-small-zh-v1.5）、Milvus Schema设计、混合检索策略开发、降级方案落地全流程，向量库故障时自动切换为关键词检索，RAG检索准确率达88%，有效降低生成幻觉",
+          "可观测与故障排查：设计全链路结构化日志规范，100%覆盖Agent调用的输入输出、耗时、状态信息，曾通过链路日志快速定位到Agent生成简历造假的根因为检索权重配置问题，2小时完成修复，排查效率提升60%",
+          "后端分层架构设计：将Streamlit前端交互与后端业务逻辑完全解耦，后端划分为接口层、编排层、数据层三层架构，各层依赖抽象不依赖实现，后续可快速替换前端为Vue等框架，支持能力扩展",
+          "容器化部署：独立完成服务Docker镜像打包，编写docker-compose一键启动脚本，包含后端、Milvus、前端全组件，启动时间≤20秒，适配Windows/Mac/Linux多环境部署"
+        ],
+        "metrics_claims": [
+          "单用户简历全流程打磨耗时≤15分钟",
+          "RAG检索准确率≥88%，Agent生成内容幻觉率≤12%",
+          "累计支撑23份简历打磨，简历与目标JD匹配度平均提升37%",
+          "全链路结构化日志覆盖率100%，Agent相关故障排查时效提升60%",
+          "Docker一键部署全组件启动时间≤20秒，适配多运行环境"
+        ],
+        "_llm_json_mode_disabled": true
+      },
+      "technical_doc": {
+        "version": 4,
+        "project_overview": {
+          "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+          "business_problem": "研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+          "target_users": "准备后端岗位面试、需要打磨简历项目和面试话术的程序员。",
+          "scope_boundary": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标"
+        },
+        "architecture_design": {
+          "overall_architecture": {
+            "frontend": "Streamlit 管理台用于演示流程和结果验收",
+            "backend": "Python 服务层组织业务编排、RAG 检索、异步修复建议生成",
+            "storage": "JSON 本地记忆保存会话版本，Milvus 保存工程知识向量",
+            "observability": "结构化日志记录 Agent 输入输出、迭代轮次和风险收口"
+          },
+          "modules": [
+            "JD 能力抽取",
+            "项目架构共创",
+            "简历包装",
+            "攻防面试",
+            "迭代修复",
+            "合规风控",
+            "模拟面试验收"
+          ],
+          "data_flow": "JD 与个人技术栈进入 LangGraph 全局 State，经架构共创、简历包装、攻防、修复和合规收口逐步沉淀为最终输出。",
+          "state_management": "使用 LangGraph StateGraph 保存会话级状态，checkpoint 支持 Human-in-the-Loop interrupt/resume。",
+          "deployment_topology": "本地 Streamlit/FastAPI 应用连接 Milvus，JSON 文件保存会话记忆和链路日志。"
+        },
+        "core_tech_stack": [
+          {
+            "name": "LangGraph",
+            "usage": "编排多 Agent 状态机和条件路由",
+            "reason": "需要显式状态、可恢复中断和多轮迭代",
+            "interview_basics": "说明 State、节点、边、checkpoint 和 interrupt/resume 的作用。"
+          },
+          {
+            "name": "RAG/Milvus",
+            "usage": "检索工程知识和技术文档片段",
+            "reason": "减少长上下文注入和 LLM 幻觉",
+            "interview_basics": "说明 chunk、embedding、向量检索、fallback 和命中片段如何进入 prompt。"
+          },
+          {
+            "name": "JSON Memory",
+            "usage": "保存会话版本、技术文档和迭代历史",
+            "reason": "便于复盘攻防修复链路",
+            "interview_basics": "说明本地持久化和可审计变更记录。"
+          }
+        ],
+        "design_decisions": [
+          {
+            "decision": "把技术文档作为权威记忆，RAG 作为检索视图",
+            "alternatives": [
+              "每轮注入完整技术文档",
+              "只存向量库不保留原文"
+            ],
+            "tradeoff": "兼顾可展示、可回溯和上下文控制",
+            "risk": "需要保证索引版本与文档版本一致。"
+          },
+          {
+            "decision": "最多三轮攻防修复后进入合规收口",
+            "alternatives": [
+              "无限迭代",
+              "单轮生成"
+            ],
+            "tradeoff": "避免演示时间失控，同时保留漏洞驱动补强过程",
+            "risk": "复杂问题可能需要人工继续补打磨。"
+          }
+        ],
+        "failure_handling": {
+          "llm_json_failure": "LLM 输出非法 JSON 时使用结构化 fallback，保证页面和 API 仍返回可读结果。",
+          "vector_db_unavailable": "Milvus 不可用时降级到内置知识片段或本地技术文档关键词检索。",
+          "llm_timeout": "LLM 客户端配置超时和低重试次数，失败后记录 fallback 原因。",
+          "empty_retrieval": "RAG 无命中时使用项目蓝图和当前技术文档摘要继续生成，不阻断主流程。"
+        },
+        "observability": {
+          "logs": "每个 Agent 记录工具调用、命中来源、输出规模和 fallback 状态。",
+          "memory": "data/memory 保存最终 State、技术文档和迭代历史。",
+          "checkpoint": "LangGraph InMemorySaver 支持 HITL 中断恢复和 checkpoint 快照查看。",
+          "debug_trace": "final_output.trace_logs 汇总链路日志，便于复盘每轮决策依据。"
+        },
+        "interview_defense": {
+          "key_talking_points": [
+            "LangGraph 有状态多 Agent 编排",
+            "Human-in-the-Loop 人工卡点控制架构方向",
+            "Milvus 本地向量库轻量 RAG 降低幻觉",
+            "JSON 版本化记忆与链路日志",
+            "三轮漏洞驱动迭代闭环"
+          ],
+          "likely_questions": [
+            "为什么需要全局技术文档？",
+            "技术文档过长时如何避免上下文爆炸？",
+            "RAG 检索不准时如何兜底？"
+          ],
+          "answer_boundaries": [
+            "只描述本地可演示和可验证能力",
+            "性能指标必须来自真实压测",
+            "不伪造公司内部系统或线上规模。"
+          ]
+        },
+        "known_risks": [
+          "技术文档 RAG 命中质量需要通过真实问题持续观察。",
+          "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+          "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+          "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+          "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+          "技术文档与简历的业务问题描述未对齐，项目定位存在歧义",
+          "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+          "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+          "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+          "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+          "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档",
+          "技术文档需要明确每个关键设计的验证证据和失败预案。"
+        ],
+        "evidence_needed": [
+          "补充本地压测截图、日志样例、Milvus 不可用时的降级演示截图。",
+          "继续追问降级、部署和协作细节。",
+          "真实性能数据仍需用户在本机或目标环境压测后补充。"
+        ],
+        "change_log": [
+          {
+            "version": 1,
+            "summary": "基于岗位画像、人工约束和项目蓝图初始化技术文档。"
+          },
+          {
+            "version": 2,
+            "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+            "round": 1
+          },
+          {
+            "version": 3,
+            "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+            "round": 2
+          },
+          {
+            "version": 4,
+            "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+            "round": 3
+          }
+        ],
+        "_llm_fallback_reason": "JSONDecodeError: Expecting ',' delimiter: line 67 column 6 (char 3006)"
+      },
+      "technical_doc_history": [
+        {
+          "version": 1,
+          "round": 0,
+          "summary": "初始化当前项目全局技术文档，并写入技术文档 RAG 索引。",
+          "index": {
+            "version": 1,
+            "chunk_count": 64,
+            "inserted_chunks": 64,
+            "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v1/"
+          }
+        },
+        {
+          "version": 2,
+          "round": 1,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "doc_gaps": [
+            "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+            "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+            "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+            "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+            "技术文档与简历的业务问题描述未对齐，项目定位存在歧义"
+          ],
+          "index": {
+            "version": 2,
+            "chunk_count": 73,
+            "inserted_chunks": 73,
+            "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v2/"
+          }
+        },
+        {
+          "version": 3,
+          "round": 2,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "doc_gaps": [
+            "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+            "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+            "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+            "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+            "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档"
+          ],
+          "index": {
+            "version": 3,
+            "chunk_count": 81,
+            "inserted_chunks": 81,
+            "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v3/"
+          }
+        },
+        {
+          "version": 4,
+          "round": 3,
+          "summary": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "doc_gaps": [
+            "技术文档需要明确每个关键设计的验证证据和失败预案。"
+          ],
+          "index": {
+            "version": 4,
+            "chunk_count": 86,
+            "inserted_chunks": 86,
+            "source_prefix": "techdoc://langfuse-real-run-20260505-1538/v4/"
+          }
+        }
+      ],
+      "technical_doc_rag_hits": [
+        {
+          "doc_id": "61aa0cc1aa4d746639ede50dde017b82b45734bf",
+          "title": "技术文档 v3 | project_overview.project_name",
+          "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name",
+          "chunk_index": 2,
+          "content": "section: project_overview.project_name\nversion: 3\ncontent: Multi-Agent 程序员简历项目闭环打磨系统",
+          "score": 0.7319,
+          "retrieval_mode": "local"
+        },
+        {
+          "doc_id": "8bee01b8f8b032c25700c1bf061bba3d625973b5",
+          "title": "技术文档 v3 | architecture_design.modules.4",
+          "source": "techdoc://langfuse-real-run-20260505-1538/v3/architecture_design.modules.4",
+          "chunk_index": 13,
+          "content": "section: architecture_design.modules.4\nversion: 3\ncontent: 攻防面试",
+          "score": 0.6968,
+          "retrieval_mode": "local"
+        },
+        {
+          "doc_id": "87b2bd245a4d041e206f3565bea9ce093badbd3f",
+          "title": "技术文档 v3 | project_overview.target_users",
+          "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.target_users",
+          "chunk_index": 4,
+          "content": "section: project_overview.target_users\nversion: 3\ncontent: 准备后端岗位面试、需要打磨简历项目和面试话术的程序员。",
+          "score": 0.6876,
+          "retrieval_mode": "local"
+        },
+        {
+          "doc_id": "b58269b05efda9ba81c6466bd62f7d02c473b04a",
+          "title": "技术文档 v3 | project_overview.business_problem",
+          "source": "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.business_problem",
+          "chunk_index": 3,
+          "content": "section: project_overview.business_problem\nversion: 3\ncontent: 研发团队知识分散、历史故障经验难复用、需求与缺陷流转缺少可追踪闭环。",
+          "score": 0.683,
+          "retrieval_mode": "local"
+        },
+        {
+          "doc_id": "2b947b5cbbc153c92e86c91761367f1378c8844d",
+          "title": "技术文档 v3 | known_risks.10",
+          "source": "techdoc://langfuse-real-run-20260505-1538/v3/known_risks.10",
+          "chunk_index": 70,
+          "content": "section: known_risks.10\nversion: 3\ncontent: 业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+          "score": 0.6563,
+          "retrieval_mode": "local"
+        }
+      ],
+      "attack_report": {
+        "round": 3,
+        "severity": "medium",
+        "doc_based_questions": [
+          "技术文档里如何证明 RAG 不是简单 prompt 拼接？",
+          "技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？"
+        ],
+        "doc_gaps": [
+          "技术文档需要明确每个关键设计的验证证据和失败预案。"
+        ],
+        "architecture_vulnerabilities": [
+          "Milvus 不可用时是否有降级策略和用户提示？",
+          "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+        ],
+        "landing_vulnerabilities": [
+          "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+          "简历中的压测指标不能直接写死，必须来自真实验证。"
+        ],
+        "logic_vulnerabilities": [
+          "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+          "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+        ],
+        "recommended_doc_updates": [
+          "补充技术文档 RAG 的 chunk 策略、检索范围和 Milvus 不可用时的本地检索 fallback。"
+        ],
+        "questions": [
+          "如果向量库宕机，系统还能输出什么级别的结果？",
+          "你如何证明这个项目不是简单 prompt 拼接？",
+          "线上出现 LLM 响应超时，你会如何降级？"
+        ],
+        "_llm_fallback_reason": "APITimeoutError: Request timed out."
+      },
+      "iteration_history": [
+        {
+          "round": 1,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 1,
+            "severity": "Medium",
+            "doc_based_questions": [
+              "技术文档v1中business_problem描述为「研发团队知识分散、历史故障经验难复用」，但简历中项目背景是解决求职者简历匹配的痛点，两者定位不一致请解释差异原因？",
+              "技术文档仅提到攻防面试等7个模块的存在，未提及人工攻防决策要求补强的RAG降级、LLM JSON fallback、Langfuse链路追踪的相关设计，请问对应能力是否有落地依据？",
+              "技术文档未披露简历匹配度提升37%、RAG检索准确率88%等指标的测算规则与验证样本，请问相关指标的可信度如何保障？"
+            ],
+            "doc_gaps": [
+              "缺失LLM JSON异常处理（如现有报错JSONDecodeError）的fallback方案文档",
+              "缺失RAG降级策略、Langfuse链路追踪的设计与落地说明文档",
+              "缺失所有效果指标的测算规则、验证数据、样本来源的说明文档",
+              "缺失部署运维相关的资源阈值、故障排查、扩容方案的文档",
+              "技术文档与简历的业务问题描述未对齐，项目定位存在歧义"
+            ],
+            "architecture_vulnerabilities": [
+              "用JSON本地存储会话版本，无分布式锁/分布式存储适配，多用户并发时会出现读写冲突、数据丢失问题",
+              "Milvus无高可用设计，仅靠关键词检索兜底，降级后的生成效果无保障机制",
+              "LangGraph状态未做持久化备份，服务重启后会话状态丢失，无状态恢复机制",
+              "可观测层仅依赖结构化日志，无链路追踪、Metrics指标监控，复杂故障排查效率低"
+            ],
+            "landing_vulnerabilities": [
+              "RAG检索准确率、幻觉率等指标无公开验证逻辑，人工核验成本高",
+              "23份简历打磨样本均为内部测试，无外部用户验证数据，匹配度提升37%未明确基线标准",
+              "本地JSON存储仅适配单用户场景，多用户使用时数据易错乱",
+              "Docker一键部署未披露资源阈值要求，多用户访问时服务稳定性无保障"
+            ],
+            "logic_vulnerabilities": [
+              "技术文档的业务问题与实际项目定位自相矛盾，业务逻辑不闭环",
+              "合规风控模块未明确具体校验规则，无法证明能有效规避简历造假风险",
+              "Human-in-the-Loop卡点未明确触发条件，无自动化偏离度检测逻辑，人工干预效率低"
+            ],
+            "recommended_doc_updates": [
+              "对齐技术文档与简历的业务问题描述，统一项目定位",
+              "补充LLM JSON fallback、RAG降级、Langfuse链路追踪的详细设计与落地文档",
+              "补充所有效果指标的测算规则、验证数据、样本来源说明",
+              "补充部署运维手册，包含资源要求、故障排查流程、扩容方案",
+              "补充合规风控、Human-in-the-Loop卡点的具体实现规则文档"
+            ],
+            "questions": [
+              "请解释技术文档与简历项目背景的定位差异，是否存在业务逻辑冲突？",
+              "你遇到过LLM返回JSONDecodeError的问题，请问你的fallback机制具体是怎样的？重试次数、格式校验逻辑如何设计？",
+              "Milvus故障时切换为关键词检索的降级方案中，如何保障降级后的生成效果不会大幅下降？",
+              "简历匹配度提升37%的测算基线是什么？用了什么评估方法？",
+              "用JSON本地存储会话版本，多用户并发时的读写冲突问题如何解决？后续有什么优化方案？"
+            ],
+            "_llm_json_mode_disabled": true
+          }
+        },
+        {
+          "round": 2,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "继续追问降级、部署和协作细节。"
+          ],
+          "source_attack": {
+            "round": 2,
+            "severity": "Medium",
+            "doc_based_questions": [
+              "技术文档v2中business_problem描述为研发团队知识分散、故障经验难复用、需求缺陷流转无闭环，但简历中项目背景是解决求职者简历匹配度低的痛点，两者业务定位完全不一致，请解释出现该偏差的原因？",
+              "技术文档v2提到数据流转是JD与个人技术栈进入LangGraph全局State逐步输出，但未提及项目历史出现的LLM JSONDecodeError的fallback逻辑在数据流的哪个环节实现，请说明？",
+              "技术文档仅覆盖了项目名称、目标用户、核心模块、基础数据流的内容，未包含人工要求补强的RAG降级、Langfuse链路追踪、部署运维的相关描述，请问对应模块的技术文档是否缺失？"
+            ],
+            "doc_gaps": [
+              "缺失RAG降级策略、LLM JSON解析异常fallback处理的专项技术文档",
+              "缺失Langfuse链路追踪的接入方案、埋点规范、可观测指标定义的相关文档",
+              "缺失部署运维维度的Docker镜像优化、多环境适配细节、故障排查手册的文档",
+              "业务定位描述矛盾，文档中面向研发团队内部知识管理，简历中面向求职者简历打磨，未对齐统一的业务目标",
+              "缺失LangGraph多Agent流转的异常路由、状态持久化、人工卡点逻辑的具体设计文档"
+            ],
+            "architecture_vulnerabilities": [
+              "存储层采用本地JSON文件保存会话版本，未实现读写冲突控制、多副本备份，多用户并发场景下会出现数据覆盖、丢失问题",
+              "RAG链路未设计Embedding服务故障、LLM服务故障的降级逻辑，仅提到Milvus故障切换关键词检索，高可用能力不足",
+              "可观测层仅依赖结构化日志，未实现Metrics、Tracing的完整可观测体系，无法做主动故障告警",
+              "未设计用户权限隔离、会话数据隔离逻辑，多用户使用时会出现数据泄露风险"
+            ],
+            "landing_vulnerabilities": [
+              "提到的RAG检索准确率88%、简历匹配度提升37%等指标，未在文档中说明统计方法、测试集范围，指标真实性无验证依据",
+              "提到Docker一键启动时间≤20秒，但未包含Milvus首次初始化、向量数据预加载的耗时，实际落地首次启动远超过该指标，存在夸大",
+              "人工卡点干预逻辑未做操作留痕、权限校验，落地时可能出现人为恶意修改简历内容的风险",
+              "提到2小时修复Agent生成造假问题，但未留存故障根因分析、修复验证过程的落地记录，无法验证排查效率提升60%的真实性"
+            ],
+            "logic_vulnerabilities": [
+              "业务定位逻辑矛盾：文档面向研发团队内部知识管理，实际落地面向求职者简历打磨，核心需求未对齐，导致需求缺陷流转等模块设计冗余",
+              "幻觉率≤12%的推导逻辑不成立：直接用100%减去RAG检索准确率得到幻觉率，未考虑LLM自身生成幻觉的场景，逻辑存疑",
+              "全链路日志覆盖率100%的逻辑不合理：未覆盖用户前端操作、第三方依赖（Milvus、Embedding、LLM）的调用异常，实际覆盖率不足"
+            ],
+            "recommended_doc_updates": [
+              "统一对齐业务定位，修正business_problem描述，明确目标用户为求职程序员，删除研发团队内部知识管理的冗余内容",
+              "补充RAG全链路降级方案、LLM JSON解析异常fallback处理逻辑的专项文档",
+              "补充Langfuse链路追踪的接入、埋点、指标体系相关文档",
+              "补充部署运维相关的Docker优化、多环境适配、故障排查手册文档",
+              "补充各量化指标的统计方法、测试集构成、验证过程的说明文档",
+              "补充LangGraph状态流转、异常处理、人工卡点的设计文档"
+            ],
+            "questions": [
+              "请解释技术文档与简历中业务定位矛盾的原因，以及架构设计上做了哪些适配调整？",
+              "项目历史出现过LLM输出JSONDecodeError问题，请说明你设计的JSON fallback处理逻辑，具体在数据流的哪个环节落地？",
+              "请说明RAG的全链路降级策略，包括Milvus故障、Embedding调用失败、检索结果为空的不同场景下的处理方案？",
+              "Langfuse链路追踪是如何接入的？覆盖了哪些埋点？如何通过Langfuse排查Agent生成内容异常的问题？",
+              "本地JSON存储如何解决多用户并发读写冲突问题？如果要扩展为多用户在线服务需要做哪些架构改造？",
+              "你提到的RAG检索准确率88%、简历匹配度提升37%是怎么统计的？测试集的构成是什么样的？"
+            ],
+            "_llm_json_mode_disabled": true
+          }
+        },
+        {
+          "round": 3,
+          "fixed_points": [
+            "补充 Milvus 不可用时的内置知识库降级路径。",
+            "补充 LLM JSON 解析失败 fallback，确保页面仍返回结构化结果。",
+            "在 README 明确压测指标需本地验证后填写，避免简历夸大。",
+            "人工约束进入全局 State，后续 Agent 持续读取。"
+          ],
+          "resume_delta": "将项目亮点从泛泛 AI 包装改为：有状态编排、人工卡点、RAG 约束、版本记忆、日志追踪、故障降级。",
+          "remaining_risks": [
+            "真实性能数据仍需用户在本机或目标环境压测后补充。"
+          ],
+          "source_attack": {
+            "round": 3,
+            "severity": "medium",
+            "doc_based_questions": [
+              "技术文档里如何证明 RAG 不是简单 prompt 拼接？",
+              "技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？"
+            ],
+            "doc_gaps": [
+              "技术文档需要明确每个关键设计的验证证据和失败预案。"
+            ],
+            "architecture_vulnerabilities": [
+              "Milvus 不可用时是否有降级策略和用户提示？",
+              "LLM 输出 JSON 失败时如何保证页面不崩溃？"
+            ],
+            "landing_vulnerabilities": [
+              "本地 Docker 首次启动 Milvus 较慢，需要健康检查和 README 说明。",
+              "简历中的压测指标不能直接写死，必须来自真实验证。"
+            ],
+            "logic_vulnerabilities": [
+              "三轮迭代停止条件需要清晰，否则用户会误解为无限自动优化。",
+              "人工否决架构方向后，后续 Agent 必须继续遵守该约束。"
+            ],
+            "recommended_doc_updates": [
+              "补充技术文档 RAG 的 chunk 策略、检索范围和 Milvus 不可用时的本地检索 fallback。"
+            ],
+            "questions": [
+              "如果向量库宕机，系统还能输出什么级别的结果？",
+              "你如何证明这个项目不是简单 prompt 拼接？",
+              "线上出现 LLM 响应超时，你会如何降级？"
+            ],
+            "_llm_fallback_reason": "APITimeoutError: Request timed out."
+          }
+        }
+      ],
+      "compliance_report": {
+        "compliance_status": "pass_with_notes",
+        "removed_or_softened_claims": [
+          "未写死 DAU、QPS、营收、公司内部系统等不可证明信息。",
+          "将所有性能收益表述为可验证方法或待压测指标。"
+        ],
+        "safe_resume_rules": [
+          "只说自己实现过的模块，不冒充真实线上公司项目。",
+          "指标必须来自本地压测、日志截图或演示环境。",
+          "架构复杂度与个人经历匹配，避免过度包装成大厂中台。"
+        ]
+      },
+      "trace_logs": [
+        {
+          "ts": "2026-05-05 07:41:23",
+          "agent": "jd_parser",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "岗位能力解析 JD:招聘 Python 后端工程师，要求熟悉 FastAPI、LangGraph、RAG、向量数据库、Docker 部署、可观测性、链路追踪和线上故障排查。\n候选人技术栈:Python FastAPI LangGraph Milvus Streamlit Docker OpenAI兼容接口 Langfu",
+            "hit_count": 4,
+            "sources": [
+              "production_backend_playbook.md",
+              "techdoc://real-algorithm-rag-20260504/v2/architecture_design.overall_architecture",
+              "techdoc://real-algorithm-rag-20260504/v3/architecture_design.overall_architecture",
+              "techdoc://real-algorithm-rag-20260504/v2/project_overview.business_problem"
+            ],
+            "top_scores": [
+              0.7325,
+              0.7256,
+              0.7248,
+              0.7218
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:41:23",
+          "agent": "jd_parser",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-05 07:42:02",
+          "agent": "jd_parser",
+          "event": "agent_completed",
+          "detail": {
+            "target_role": "Python后端工程师",
+            "capabilities": [
+              "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+              "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+              "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+              "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+              "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+            ],
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-05 07:42:02",
+          "agent": "human_scope_gate",
+          "event": "scope_constraints_preapproved",
+          "detail": {
+            "human_constraints": {
+              "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+              "highlight_focus": "LangGraph 多 Agent 编排、真实 RAG、Langfuse 可观测性、Docker 部署和故障降级",
+              "forbidden_directions": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-05 07:42:02",
+          "agent": "architecture_cocreation",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "后端架构设计 部署 稳定性 真实落地 能力:['熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力', '熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）', '熟悉至少一种向量数据库的",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "techdoc://real-algorithm-rag-20260504/v2/architecture_design.overall_architecture",
+              "techdoc://real-algorithm-rag-20260504/v3/architecture_design.overall_architecture"
+            ],
+            "top_scores": [
+              0.8242,
+              0.7763,
+              0.7756
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:42:02",
+          "agent": "architecture_cocreation",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 900
+          }
+        },
+        {
+          "ts": "2026-05-05 07:42:59",
+          "agent": "architecture_cocreation",
+          "event": "agent_completed",
+          "detail": {
+            "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+            "modules": 7,
+            "used_fallback": true
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:02",
+          "agent": "technical_doc_builder",
+          "event": "agent_completed",
+          "detail": {
+            "version": 1,
+            "chunks": 64,
+            "inserted_chunks": 64
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:02",
+          "agent": "resume_packaging",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "简历项目表达 面试话术 合规指标 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+              "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+              "techdoc://20260505063906-9d2c2817/v2/project_overview.project_name"
+            ],
+            "top_scores": [
+              0.8064,
+              0.8064,
+              0.8031
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:02",
+          "agent": "resume_packaging",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 652
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:45",
+          "agent": "resume_packaging",
+          "event": "agent_completed",
+          "detail": {
+            "talking_points": 5,
+            "has_resume_paragraph": true,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:45",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第1轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+              "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+              "techdoc://20260505063906-9d2c2817/v3/project_overview.project_name"
+            ],
+            "top_scores": [
+              0.7586,
+              0.7586,
+              0.754
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:44:45",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 651
+          }
+        },
+        {
+          "ts": "2026-05-05 07:45:22",
+          "agent": "senior_interviewer",
+          "event": "technical_doc_rag_invoked",
+          "detail": {
+            "query": "第1轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 5,
+            "sources": [
+              "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.project_name",
+              "techdoc://langfuse-real-run-20260505-1538/v1/architecture_design.modules.4",
+              "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.target_users",
+              "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.business_problem",
+              "techdoc://langfuse-real-run-20260505-1538/v1/architecture_design.data_flow"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:45:22",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 1,
+            "severity": "Medium",
+            "questions": 5,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-05 07:45:22",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-05 07:45:22",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 1, 'severity': 'Medium', 'doc_based_questions': ['技术文档v1中business_problem描述为「研发团队知识分散、历史故障经验难复用」，但简历中项目背景是解决求职者简历匹配的痛点，两者定位不一致请解",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "production_backend_playbook.md"
+            ],
+            "top_scores": [
+              0.7936,
+              0.7925,
+              0.7885
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:45:22",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 1,
+            "fixed": 4,
+            "rag_sources": [
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "production_backend_playbook.md"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:46:26",
+          "agent": "technical_doc_updater",
+          "event": "agent_completed",
+          "detail": {
+            "version": 2,
+            "round": 1,
+            "chunks": 73,
+            "inserted_chunks": 73
+          }
+        },
+        {
+          "ts": "2026-05-05 07:46:26",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第2轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+              "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+              "techdoc://20260505063906-9d2c2817/v2/project_overview.project_name"
+            ],
+            "top_scores": [
+              0.7643,
+              0.7643,
+              0.7626
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:46:26",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 652
+          }
+        },
+        {
+          "ts": "2026-05-05 07:47:23",
+          "agent": "senior_interviewer",
+          "event": "technical_doc_rag_invoked",
+          "detail": {
+            "query": "第2轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 5,
+            "sources": [
+              "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.project_name",
+              "techdoc://langfuse-real-run-20260505-1538/v2/architecture_design.modules.4",
+              "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.target_users",
+              "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.business_problem",
+              "techdoc://langfuse-real-run-20260505-1538/v2/architecture_design.data_flow"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:47:23",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 2,
+            "severity": "Medium",
+            "questions": 6,
+            "used_fallback": false
+          }
+        },
+        {
+          "ts": "2026-05-05 07:47:23",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-05 07:47:23",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 2, 'severity': 'Medium', 'doc_based_questions': ['技术文档v2中business_problem描述为研发团队知识分散、故障经验难复用、需求缺陷流转无闭环，但简历中项目背景是解决求职者简历匹配度低的痛点，两",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "production_backend_playbook.md"
+            ],
+            "top_scores": [
+              0.8203,
+              0.818,
+              0.7985
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:47:23",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 2,
+            "fixed": 4,
+            "rag_sources": [
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "production_backend_playbook.md"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:48:20",
+          "agent": "technical_doc_updater",
+          "event": "agent_completed",
+          "detail": {
+            "version": 3,
+            "round": 2,
+            "chunks": 81,
+            "inserted_chunks": 81
+          }
+        },
+        {
+          "ts": "2026-05-05 07:48:20",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第3轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://real-llm-langfuse-check-20260505/v3/project_overview.project_name",
+              "techdoc://20260505063906-9d2c2817/v3/project_overview.project_name",
+              "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name"
+            ],
+            "top_scores": [
+              0.7639,
+              0.7639,
+              0.7639
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:48:20",
+          "agent": "senior_interviewer",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "render_rag_context",
+            "chars": 660
+          }
+        },
+        {
+          "ts": "2026-05-05 07:49:21",
+          "agent": "senior_interviewer",
+          "event": "technical_doc_rag_invoked",
+          "detail": {
+            "query": "第3轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 5,
+            "sources": [
+              "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name",
+              "techdoc://langfuse-real-run-20260505-1538/v3/architecture_design.modules.4",
+              "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.target_users",
+              "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.business_problem",
+              "techdoc://langfuse-real-run-20260505-1538/v3/known_risks.10"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:49:21",
+          "agent": "senior_interviewer",
+          "event": "agent_completed",
+          "detail": {
+            "round": 3,
+            "severity": "medium",
+            "questions": 3,
+            "used_fallback": true
+          }
+        },
+        {
+          "ts": "2026-05-05 07:49:21",
+          "agent": "human_attack_gate",
+          "event": "attack_decision_preapproved",
+          "detail": {
+            "attack_human_decision": {
+              "decision": "允许自动修复",
+              "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+            }
+          }
+        },
+        {
+          "ts": "2026-05-05 07:49:21",
+          "agent": "iteration_repair",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 3, 'severity': 'medium', 'doc_based_questions': ['技术文档里如何证明 RAG 不是简单 prompt 拼接？', '技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？'], 'doc_gaps'",
+            "hit_count": 3,
+            "sources": [
+              "production_backend_playbook.md",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7"
+            ],
+            "top_scores": [
+              0.7985,
+              0.763,
+              0.7589
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:49:21",
+          "agent": "iteration_repair",
+          "event": "agent_completed",
+          "detail": {
+            "round": 3,
+            "fixed": 4,
+            "rag_sources": [
+              "production_backend_playbook.md",
+              "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+              "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7"
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:50:14",
+          "agent": "technical_doc_updater",
+          "event": "agent_completed",
+          "detail": {
+            "version": 4,
+            "round": 3,
+            "chunks": 86,
+            "inserted_chunks": 86
+          }
+        },
+        {
+          "ts": "2026-05-05 07:50:14",
+          "agent": "compliance_risk",
+          "event": "tool_invoked",
+          "detail": {
+            "tool": "retrieve_resume_rag_context",
+            "query": "简历合规 风险收口 不夸大 不造假 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+            "hit_count": 3,
+            "sources": [
+              "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+              "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+              "techdoc://langfuse-real-run-20260505-1538/v4/project_overview.project_name"
+            ],
+            "top_scores": [
+              0.7517,
+              0.7517,
+              0.7517
+            ]
+          }
+        },
+        {
+          "ts": "2026-05-05 07:50:14",
+          "agent": "compliance_risk",
+          "event": "compliance_closed",
+          "detail": {
+            "status": "pass_with_notes"
+          }
+        }
+      ]
+    },
+    "current_agent": "compliance_risk",
+    "logs": [
+      {
+        "ts": "2026-05-05 07:41:23",
+        "agent": "jd_parser",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "岗位能力解析 JD:招聘 Python 后端工程师，要求熟悉 FastAPI、LangGraph、RAG、向量数据库、Docker 部署、可观测性、链路追踪和线上故障排查。\n候选人技术栈:Python FastAPI LangGraph Milvus Streamlit Docker OpenAI兼容接口 Langfu",
+          "hit_count": 4,
+          "sources": [
+            "production_backend_playbook.md",
+            "techdoc://real-algorithm-rag-20260504/v2/architecture_design.overall_architecture",
+            "techdoc://real-algorithm-rag-20260504/v3/architecture_design.overall_architecture",
+            "techdoc://real-algorithm-rag-20260504/v2/project_overview.business_problem"
+          ],
+          "top_scores": [
+            0.7325,
+            0.7256,
+            0.7248,
+            0.7218
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:41:23",
+        "agent": "jd_parser",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-05 07:42:02",
+        "agent": "jd_parser",
+        "event": "agent_completed",
+        "detail": {
+          "target_role": "Python后端工程师",
+          "capabilities": [
+            "熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力",
+            "熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）",
+            "熟悉至少一种向量数据库的使用、Schema设计与日常运维",
+            "熟悉Docker容器化部署流程，可独立完成后端服务的容器化打包与发布",
+            "掌握可观测性体系建设、链路追踪工具使用方法，具备独立排查线上服务故障的能力"
+          ],
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-05 07:42:02",
+        "agent": "human_scope_gate",
+        "event": "scope_constraints_preapproved",
+        "detail": {
+          "human_constraints": {
+            "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+            "highlight_focus": "LangGraph 多 Agent 编排、真实 RAG、Langfuse 可观测性、Docker 部署和故障降级",
+            "forbidden_directions": "不编造大厂亿级流量，不伪造真实公司线上系统，不写不可验证性能指标"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-05 07:42:02",
+        "agent": "architecture_cocreation",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "后端架构设计 部署 稳定性 真实落地 能力:['熟练掌握Python后端开发，精通FastAPI框架的接口开发、参数校验、异常处理等核心能力', '熟悉LangGraph的Agent编排逻辑，掌握RAG全链路工程实现（含文档切分、Embedding选型、向量库设计、检索策略、降级方案等）', '熟悉至少一种向量数据库的",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "techdoc://real-algorithm-rag-20260504/v2/architecture_design.overall_architecture",
+            "techdoc://real-algorithm-rag-20260504/v3/architecture_design.overall_architecture"
+          ],
+          "top_scores": [
+            0.8242,
+            0.7763,
+            0.7756
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:42:02",
+        "agent": "architecture_cocreation",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 900
+        }
+      },
+      {
+        "ts": "2026-05-05 07:42:59",
+        "agent": "architecture_cocreation",
+        "event": "agent_completed",
+        "detail": {
+          "project_name": "Multi-Agent 程序员简历项目闭环打磨系统",
+          "modules": 7,
+          "used_fallback": true
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:02",
+        "agent": "technical_doc_builder",
+        "event": "agent_completed",
+        "detail": {
+          "version": 1,
+          "chunks": 64,
+          "inserted_chunks": 64
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:02",
+        "agent": "resume_packaging",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "简历项目表达 面试话术 合规指标 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+            "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+            "techdoc://20260505063906-9d2c2817/v2/project_overview.project_name"
+          ],
+          "top_scores": [
+            0.8064,
+            0.8064,
+            0.8031
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:02",
+        "agent": "resume_packaging",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 652
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:45",
+        "agent": "resume_packaging",
+        "event": "agent_completed",
+        "detail": {
+          "talking_points": 5,
+          "has_resume_paragraph": true,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:45",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第1轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+            "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+            "techdoc://20260505063906-9d2c2817/v3/project_overview.project_name"
+          ],
+          "top_scores": [
+            0.7586,
+            0.7586,
+            0.754
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:44:45",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 651
+        }
+      },
+      {
+        "ts": "2026-05-05 07:45:22",
+        "agent": "senior_interviewer",
+        "event": "technical_doc_rag_invoked",
+        "detail": {
+          "query": "第1轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 5,
+          "sources": [
+            "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v1/architecture_design.modules.4",
+            "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.target_users",
+            "techdoc://langfuse-real-run-20260505-1538/v1/project_overview.business_problem",
+            "techdoc://langfuse-real-run-20260505-1538/v1/architecture_design.data_flow"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:45:22",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 1,
+          "severity": "Medium",
+          "questions": 5,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-05 07:45:22",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-05 07:45:22",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 1, 'severity': 'Medium', 'doc_based_questions': ['技术文档v1中business_problem描述为「研发团队知识分散、历史故障经验难复用」，但简历中项目背景是解决求职者简历匹配的痛点，两者定位不一致请解",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "production_backend_playbook.md"
+          ],
+          "top_scores": [
+            0.7936,
+            0.7925,
+            0.7885
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:45:22",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 1,
+          "fixed": 4,
+          "rag_sources": [
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "production_backend_playbook.md"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:46:26",
+        "agent": "technical_doc_updater",
+        "event": "agent_completed",
+        "detail": {
+          "version": 2,
+          "round": 1,
+          "chunks": 73,
+          "inserted_chunks": 73
+        }
+      },
+      {
+        "ts": "2026-05-05 07:46:26",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第2轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+            "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+            "techdoc://20260505063906-9d2c2817/v2/project_overview.project_name"
+          ],
+          "top_scores": [
+            0.7643,
+            0.7643,
+            0.7626
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:46:26",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 652
+        }
+      },
+      {
+        "ts": "2026-05-05 07:47:23",
+        "agent": "senior_interviewer",
+        "event": "technical_doc_rag_invoked",
+        "detail": {
+          "query": "第2轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 5,
+          "sources": [
+            "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v2/architecture_design.modules.4",
+            "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.target_users",
+            "techdoc://langfuse-real-run-20260505-1538/v2/project_overview.business_problem",
+            "techdoc://langfuse-real-run-20260505-1538/v2/architecture_design.data_flow"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:47:23",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 2,
+          "severity": "Medium",
+          "questions": 6,
+          "used_fallback": false
+        }
+      },
+      {
+        "ts": "2026-05-05 07:47:23",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-05 07:47:23",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 2, 'severity': 'Medium', 'doc_based_questions': ['技术文档v2中business_problem描述为研发团队知识分散、故障经验难复用、需求缺陷流转无闭环，但简历中项目背景是解决求职者简历匹配度低的痛点，两",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "production_backend_playbook.md"
+          ],
+          "top_scores": [
+            0.8203,
+            0.818,
+            0.7985
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:47:23",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 2,
+          "fixed": 4,
+          "rag_sources": [
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "production_backend_playbook.md"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:48:20",
+        "agent": "technical_doc_updater",
+        "event": "agent_completed",
+        "detail": {
+          "version": 3,
+          "round": 2,
+          "chunks": 81,
+          "inserted_chunks": 81
+        }
+      },
+      {
+        "ts": "2026-05-05 07:48:20",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "面试攻防 架构漏洞 落地漏洞 线上故障 第3轮 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://real-llm-langfuse-check-20260505/v3/project_overview.project_name",
+            "techdoc://20260505063906-9d2c2817/v3/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name"
+          ],
+          "top_scores": [
+            0.7639,
+            0.7639,
+            0.7639
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:48:20",
+        "agent": "senior_interviewer",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "render_rag_context",
+          "chars": 660
+        }
+      },
+      {
+        "ts": "2026-05-05 07:49:21",
+        "agent": "senior_interviewer",
+        "event": "technical_doc_rag_invoked",
+        "detail": {
+          "query": "第3轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 5,
+          "sources": [
+            "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v3/architecture_design.modules.4",
+            "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.target_users",
+            "techdoc://langfuse-real-run-20260505-1538/v3/project_overview.business_problem",
+            "techdoc://langfuse-real-run-20260505-1538/v3/known_risks.10"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:49:21",
+        "agent": "senior_interviewer",
+        "event": "agent_completed",
+        "detail": {
+          "round": 3,
+          "severity": "medium",
+          "questions": 3,
+          "used_fallback": true
+        }
+      },
+      {
+        "ts": "2026-05-05 07:49:21",
+        "agent": "human_attack_gate",
+        "event": "attack_decision_preapproved",
+        "detail": {
+          "attack_human_decision": {
+            "decision": "允许自动修复",
+            "note": "重点补强 RAG 降级、LLM JSON fallback、Langfuse 链路追踪和部署运维细节"
+          }
+        }
+      },
+      {
+        "ts": "2026-05-05 07:49:21",
+        "agent": "iteration_repair",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "项目修复 降级 观测 部署 运维 攻防问题:{'round': 3, 'severity': 'medium', 'doc_based_questions': ['技术文档里如何证明 RAG 不是简单 prompt 拼接？', '技术文档的降级策略是否覆盖 Milvus 和 LLM 双故障？'], 'doc_gaps'",
+          "hit_count": 3,
+          "sources": [
+            "production_backend_playbook.md",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7"
+          ],
+          "top_scores": [
+            0.7985,
+            0.763,
+            0.7589
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:49:21",
+        "agent": "iteration_repair",
+        "event": "agent_completed",
+        "detail": {
+          "round": 3,
+          "fixed": 4,
+          "rag_sources": [
+            "production_backend_playbook.md",
+            "techdoc://real-llm-langfuse-check-20260505/v3/known_risks.7",
+            "techdoc://real-llm-langfuse-check-20260505/v4/known_risks.7"
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:50:14",
+        "agent": "technical_doc_updater",
+        "event": "agent_completed",
+        "detail": {
+          "version": 4,
+          "round": 3,
+          "chunks": 86,
+          "inserted_chunks": 86
+        }
+      },
+      {
+        "ts": "2026-05-05 07:50:14",
+        "agent": "compliance_risk",
+        "event": "tool_invoked",
+        "detail": {
+          "tool": "retrieve_resume_rag_context",
+          "query": "简历合规 风险收口 不夸大 不造假 项目:Multi-Agent 程序员简历项目闭环打磨系统",
+          "hit_count": 3,
+          "sources": [
+            "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+            "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v4/project_overview.project_name"
+          ],
+          "top_scores": [
+            0.7517,
+            0.7517,
+            0.7517
+          ]
+        }
+      },
+      {
+        "ts": "2026-05-05 07:50:14",
+        "agent": "compliance_risk",
+        "event": "agent_completed",
+        "detail": {
+          "status": "pass_with_notes",
+          "rules": 3,
+          "rag_sources": [
+            "techdoc://20260505063906-9d2c2817/v4/project_overview.project_name",
+            "techdoc://real-llm-langfuse-check-20260505/v4/project_overview.project_name",
+            "techdoc://langfuse-real-run-20260505-1538/v4/project_overview.project_name"
+          ]
+        }
+      }
+    ],
+    "errors": []
+  }
+}
