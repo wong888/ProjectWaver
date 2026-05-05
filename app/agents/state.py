@@ -8,10 +8,12 @@ AgentName = Literal[
     "jd_parser",
     "human_scope_gate",
     "architecture_cocreation",
+    "technical_doc_builder",
     "resume_packaging",
     "senior_interviewer",
     "human_attack_gate",
     "iteration_repair",
+    "technical_doc_updater",
     "compliance_risk",
 ]
 
@@ -29,6 +31,9 @@ class ResumePolishState(TypedDict, total=False):
     jd_profile: Dict[str, Any]
     rag_context: List[Dict[str, Any]]
     project_blueprint: Dict[str, Any]
+    technical_doc: Dict[str, Any]
+    technical_doc_history: Annotated[List[Dict[str, Any]], operator.add]
+    technical_doc_rag_hits: List[Dict[str, Any]]
     resume_package: Dict[str, Any]
     attack_report: Dict[str, Any]
     iteration_round: int

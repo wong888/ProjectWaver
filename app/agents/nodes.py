@@ -6,11 +6,19 @@ from typing import Any, Dict, List
 from langgraph.types import interrupt
 
 from app.agents import prompts
-from app.agents.schemas import attack_report_fallback, architecture_fallback, jd_profile_fallback, resume_package_fallback
+from app.agents.schemas import (
+    attack_report_fallback,
+    architecture_fallback,
+    jd_profile_fallback,
+    resume_package_fallback,
+    technical_doc_fallback,
+    technical_doc_update_fallback,
+)
 from app.agents.state import ResumePolishState
 from app.agents.tools import render_rag_context, retrieve_resume_rag_context
 from app.services.event_logger import make_log
 from app.services.llm_client import llm_client, split_keywords
+from app.services.technical_doc_rag import index_technical_doc, render_technical_doc_hits, search_technical_doc
 
 
 def _ctx(state: ResumePolishState) -> str:
@@ -148,6 +156,39 @@ def architecture_cocreation_agent(state: ResumePolishState) -> ResumePolishState
     }
 
 
+def technical_doc_builder_agent(state: ResumePolishState) -> ResumePolishState:
+    fallback = technical_doc_fallback(state.get("jd_profile", {}), state.get("human_constraints", {}), state.get("project_blueprint", {}))
+    technical_doc = llm_client.json_chat(
+        prompts.TECHNICAL_DOC_BUILDER_SYSTEM,
+        prompts.technical_doc_builder_user(state.get("jd_profile", {}), state.get("human_constraints", {}), state.get("project_blueprint", {})),
+        fallback,
+    )
+    technical_doc["version"] = int(technical_doc.get("version", 1) or 1)
+    index_result = index_technical_doc(state["session_id"], technical_doc)
+    history_item = {
+        "version": technical_doc["version"],
+        "round": 0,
+        "summary": "初始化当前项目全局技术文档，并写入技术文档 RAG 索引。",
+        "index": index_result,
+    }
+    return {
+        "current_agent": "technical_doc_builder",
+        "technical_doc": technical_doc,
+        "technical_doc_history": [history_item],
+        "logs": [
+            make_log(
+                "technical_doc_builder",
+                "agent_completed",
+                {
+                    "version": technical_doc["version"],
+                    "chunks": index_result.get("chunk_count", 0),
+                    "inserted_chunks": index_result.get("inserted_chunks", 0),
+                },
+            )
+        ],
+    }
+
+
 def resume_packaging_agent(state: ResumePolishState) -> ResumePolishState:
     blueprint = state.get("project_blueprint", {})
     resume_hits, rag_log = _retrieve_for_agent(
@@ -182,6 +223,12 @@ def resume_packaging_agent(state: ResumePolishState) -> ResumePolishState:
 
 def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
     round_no = int(state.get("iteration_round", 0)) + 1
+    technical_query = (
+        f"第{round_no}轮 面试攻防 当前项目 技术文档 架构设计 降级策略 可观测性 部署 真实性风险 "
+        f"项目:{state.get('project_blueprint', {}).get('project_name', '')}"
+    )
+    technical_hits = search_technical_doc(technical_query, state["session_id"], state.get("technical_doc", {}), limit=5)
+    technical_context = render_technical_doc_hits(technical_hits)
     attack_hits, rag_log = _retrieve_for_agent(
         "senior_interviewer",
         f"面试攻防 架构漏洞 落地漏洞 线上故障 第{round_no}轮 项目:{state.get('project_blueprint', {}).get('project_name', '')}",
@@ -190,7 +237,13 @@ def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
     fallback = attack_report_fallback(round_no)
     report = llm_client.json_chat(
         prompts.SENIOR_INTERVIEWER_SYSTEM,
-        prompts.senior_interviewer_user(round_no, state.get("project_blueprint", {}), state.get("resume_package", {}), state.get("attack_human_decision", {}))
+        prompts.senior_interviewer_user(
+            round_no,
+            state.get("project_blueprint", {}),
+            state.get("resume_package", {}),
+            state.get("attack_human_decision", {}),
+            technical_context,
+        )
         + f"\nRAG攻防参考:\n{attack_context}",
         fallback,
     )
@@ -198,9 +251,19 @@ def senior_interviewer_agent(state: ResumePolishState) -> ResumePolishState:
         "current_agent": "senior_interviewer",
         "attack_report": report,
         "iteration_round": round_no,
+        "technical_doc_rag_hits": technical_hits,
         "logs": [
             rag_log,
             render_log,
+            make_log(
+                "senior_interviewer",
+                "technical_doc_rag_invoked",
+                {
+                    "query": technical_query[:160],
+                    "hit_count": len(technical_hits),
+                    "sources": [hit.get("source") for hit in technical_hits],
+                },
+            ),
             make_log(
                 "senior_interviewer",
                 "agent_completed",
@@ -273,6 +336,45 @@ def iteration_repair_agent(state: ResumePolishState) -> ResumePolishState:
     }
 
 
+def technical_doc_updater_agent(state: ResumePolishState) -> ResumePolishState:
+    current_doc = state.get("technical_doc", {})
+    attack = state.get("attack_report", {})
+    latest_repair = (state.get("iteration_history", []) or [{}])[-1]
+    fallback = technical_doc_update_fallback(current_doc, attack, latest_repair)
+    technical_doc = llm_client.json_chat(
+        prompts.TECHNICAL_DOC_UPDATER_SYSTEM,
+        prompts.technical_doc_updater_user(current_doc, attack, latest_repair, state.get("human_constraints", {})),
+        fallback,
+    )
+    min_version = int(current_doc.get("version", 1)) + 1 if current_doc else 1
+    technical_doc["version"] = max(int(technical_doc.get("version", min_version) or min_version), min_version)
+    index_result = index_technical_doc(state["session_id"], technical_doc)
+    history_item = {
+        "version": technical_doc["version"],
+        "round": state.get("iteration_round", 0),
+        "summary": latest_repair.get("resume_delta", "根据本轮攻防和修复结果更新技术文档。"),
+        "doc_gaps": attack.get("doc_gaps", []),
+        "index": index_result,
+    }
+    return {
+        "current_agent": "technical_doc_updater",
+        "technical_doc": technical_doc,
+        "technical_doc_history": [history_item],
+        "logs": [
+            make_log(
+                "technical_doc_updater",
+                "agent_completed",
+                {
+                    "version": technical_doc["version"],
+                    "round": state.get("iteration_round", 0),
+                    "chunks": index_result.get("chunk_count", 0),
+                    "inserted_chunks": index_result.get("inserted_chunks", 0),
+                },
+            )
+        ],
+    }
+
+
 def compliance_risk_agent(state: ResumePolishState) -> ResumePolishState:
     compliance_hits, rag_log = _retrieve_for_agent(
         "compliance_risk",
@@ -298,6 +400,9 @@ def compliance_risk_agent(state: ResumePolishState) -> ResumePolishState:
         "jd_profile": state.get("jd_profile", {}),
         "project_blueprint": state.get("project_blueprint", {}),
         "resume_package": sanitized_resume_package,
+        "technical_doc": state.get("technical_doc", {}),
+        "technical_doc_history": state.get("technical_doc_history", []),
+        "technical_doc_rag_hits": state.get("technical_doc_rag_hits", []),
         "attack_report": state.get("attack_report", {}),
         "iteration_history": state.get("iteration_history", []),
         "compliance_report": report,

@@ -18,6 +18,8 @@ from app.agents.nodes import (
     senior_interviewer_agent,
     should_continue_iteration,
     scope_human_gate,
+    technical_doc_builder_agent,
+    technical_doc_updater_agent,
 )
 from app.agents.state import ResumePolishState
 from app.services.json_memory import new_session_id, save_session
@@ -54,24 +56,28 @@ def build_resume_polish_graph():
     graph.add_node("jd_parser", jd_parser_agent)
     graph.add_node("human_scope_gate", scope_human_gate)
     graph.add_node("architecture_cocreation", architecture_cocreation_agent)
+    graph.add_node("technical_doc_builder", technical_doc_builder_agent)
     graph.add_node("resume_packaging", resume_packaging_agent)
     graph.add_node("senior_interviewer", senior_interviewer_agent)
     graph.add_node("human_attack_gate", attack_human_gate)
     graph.add_node("iteration_repair", iteration_repair_agent)
+    graph.add_node("technical_doc_updater", technical_doc_updater_agent)
     graph.add_node("compliance_risk", compliance_risk_agent)
 
     graph.add_edge(START, "jd_parser")
     graph.add_edge("jd_parser", "human_scope_gate")
     graph.add_edge("human_scope_gate", "architecture_cocreation")
-    graph.add_edge("architecture_cocreation", "resume_packaging")
+    graph.add_edge("architecture_cocreation", "technical_doc_builder")
+    graph.add_edge("technical_doc_builder", "resume_packaging")
     graph.add_edge("resume_packaging", "senior_interviewer")
     graph.add_edge("senior_interviewer", "human_attack_gate")
     graph.add_edge("human_attack_gate", "iteration_repair")
     graph.add_conditional_edges(
-        "iteration_repair",
+        "technical_doc_updater",
         should_continue_iteration,
         {"continue": "senior_interviewer", "finish": "compliance_risk"},
     )
+    graph.add_edge("iteration_repair", "technical_doc_updater")
     graph.add_edge("compliance_risk", END)
     return graph.compile(checkpointer=CHECKPOINTER)
 
@@ -95,6 +101,7 @@ def run_full_pipeline(payload: Dict[str, Any]) -> Dict[str, Any]:
         "attack_human_decision": payload.get("attack_human_decision", {}),
         "iteration_round": 0,
         "iteration_history": [],
+        "technical_doc_history": [],
         "logs": [],
         "errors": [],
     }
@@ -116,6 +123,7 @@ def start_hitl_pipeline(payload: Dict[str, Any]) -> Dict[str, Any]:
         "attack_human_decision": payload.get("attack_human_decision", {}),
         "iteration_round": 0,
         "iteration_history": [],
+        "technical_doc_history": [],
         "logs": [],
         "errors": [],
     }

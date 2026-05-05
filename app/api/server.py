@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from app.agents.graph import get_checkpoint_state, resume_hitl_pipeline, run_full_pipeline, run_manual_polish, start_hitl_pipeline
 from app.core.config import settings
 from app.services.json_memory import list_sessions, load_session
+from app.services.technical_doc_rag import search_technical_doc
 from app.services.vector_store import vector_store
 from scripts.ingest_rag import load_documents
 
@@ -34,6 +35,12 @@ class ManualPolishRequest(BaseModel):
 
 class RagSearchRequest(BaseModel):
     query: str = Field(..., min_length=1)
+    limit: int = Field(5, ge=1, le=20)
+
+
+class TechnicalDocSearchRequest(BaseModel):
+    session_id: str = Field(..., description="会话 ID")
+    query: str = Field(..., min_length=1, description="技术文档检索问题")
     limit: int = Field(5, ge=1, le=20)
 
 
@@ -133,6 +140,21 @@ def session_detail(session_id: str) -> Dict[str, Any]:
 @app.post("/api/v1/rag/search")
 def rag_search(request: RagSearchRequest) -> Dict[str, Any]:
     return {"query": request.query, "hits": vector_store.search(request.query, limit=request.limit)}
+
+
+@app.post("/api/v1/technical-doc/search")
+def technical_doc_search(request: TechnicalDocSearchRequest) -> Dict[str, Any]:
+    try:
+        state = load_session(request.session_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    technical_doc = state.get("technical_doc", {})
+    return {
+        "session_id": request.session_id,
+        "query": request.query,
+        "technical_doc_version": technical_doc.get("version"),
+        "hits": search_technical_doc(request.query, request.session_id, technical_doc, limit=request.limit),
+    }
 
 
 @app.get("/api/v1/rag/health")

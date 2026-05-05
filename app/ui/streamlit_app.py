@@ -89,6 +89,35 @@ def render_interview(state: Dict[str, Any]) -> None:
             st.caption("验收建议：回答中需要包含场景、方案、权衡、验证证据和失败预案。")
 
 
+def render_technical_doc(state: Dict[str, Any]) -> None:
+    technical_doc = state.get("technical_doc", {})
+    if not technical_doc:
+        st.warning("当前会话还没有生成技术文档。请先运行主流程。")
+        return
+
+    st.subheader("当前项目全局技术文档")
+    st.caption(f"版本 v{technical_doc.get('version', 1)}，作为当前项目的权威知识源；面试官每轮只检索相关片段进入上下文。")
+    st.json(technical_doc)
+
+    st.subheader("技术文档 RAG 命中片段")
+    hits = state.get("technical_doc_rag_hits", [])
+    if not hits:
+        st.info("当前还没有技术文档检索记录。运行到面试官攻防后会展示命中的文档片段。")
+    for hit in hits:
+        st.markdown(
+            f"- **{hit.get('title')}** | source=`{hit.get('source', 'unknown')}` | "
+            f"score=`{hit.get('score', 0)}` | mode=`{hit.get('retrieval_mode', 'unknown')}`"
+        )
+        st.caption(str(hit.get("content", ""))[:260])
+
+    st.subheader("技术文档变更历史")
+    for item in state.get("technical_doc_history", []):
+        st.markdown(f"**v{item.get('version')} | 第 {item.get('round')} 轮**")
+        st.info(item.get("summary", ""))
+        if item.get("doc_gaps"):
+            st.caption("本轮文档缺口：" + "；".join(str(gap) for gap in item.get("doc_gaps", [])))
+
+
 st.markdown(
     """
 <div class="hero">
@@ -109,7 +138,7 @@ with st.sidebar:
             st.rerun()
     st.caption("所有版本保存在 data/memory/*.json，可用于复盘迭代链路。")
 
-tab_run, tab_manual, tab_interview, tab_rag = st.tabs(["主流程闭环", "手动精细化补打磨", "模拟面试验收", "RAG健康检查"])
+tab_run, tab_manual, tab_doc, tab_interview, tab_rag = st.tabs(["主流程闭环", "手动精细化补打磨", "技术文档记忆", "模拟面试验收", "RAG健康检查"])
 
 with tab_run:
     st.subheader("开局 Human-in-the-Loop 人工约束卡点")
@@ -161,6 +190,12 @@ with tab_manual:
             st.success("补打磨完成，已保存新版本。")
         if st.session_state.get("state", {}).get("manual_polish_output"):
             st.json(st.session_state["state"]["manual_polish_output"])
+
+with tab_doc:
+    if "state" not in st.session_state:
+        st.warning("请先运行主流程或加载历史会话。")
+    else:
+        render_technical_doc(st.session_state["state"])
 
 with tab_interview:
     if "state" not in st.session_state:

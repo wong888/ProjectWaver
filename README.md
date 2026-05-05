@@ -10,6 +10,7 @@ A multi-agent project designed for polishing projects in programmers' CV.
 - 六大 Agent：岗位 JD 解析、后端架构共创、简历工程包装、资深攻防面试官、项目迭代修复、合规风控收口。
 - Human-in-the-Loop：开局人工约束项目范围；攻防漏洞产出后人工指定修复边界。
 - 三轮自动迭代：面试官找漏洞，修复 Agent 补强，最多三轮后强制进入合规收口。
+- 技术文档记忆：为当前项目维护一份全局技术文档，面试官每轮通过 RAG 检索相关章节后再攻防，修复后反哺更新文档。
 - 手动精细化补打磨：不重跑全流程，单独针对架构、性能、线上故障、部署运维、团队协作加厚细节。
 - 模拟面试验收：内置八股 + 业务追问入口，直接根据攻防 Agent 的问题进行演练。
 - 本地记忆与日志：`data/memory` 保存会话版本，`data/logs` 保存链路日志。
@@ -149,6 +150,14 @@ curl -X POST http://localhost:18000/api/v1/rag/search \
   -d '{"query":"LangGraph Milvus RAG 如何降低幻觉","limit":3}'
 ```
 
+检索当前会话的技术文档 RAG：
+
+```bash
+curl -X POST http://localhost:18000/api/v1/technical-doc/search \
+  -H "Content-Type: application/json" \
+  -d '{"session_id":"替换成真实session_id","query":"Milvus 不可用时系统如何降级","limit":5}'
+```
+
 查看历史会话：
 
 ```bash
@@ -238,6 +247,8 @@ LLM_MODEL=gpt-4o-mini
 - 基于 LangGraph StateGraph 设计有状态多 Agent 编排，使用条件路由控制三轮攻防修复和合规收口。
 - 引入 Human-in-the-Loop 人工卡点，把项目技术范围、强化亮点和架构否决项写入全局状态，减少 Agent 偏航。
 - 使用 Milvus 本地向量库构建轻量 RAG，LLM 输出前检索工程知识，降低简历包装中的幻觉和夸大。
+- 增加项目级技术文档记忆，把完整设计作为权威文档保存，再切片写入 RAG 索引，面试官按需召回片段追问，避免长文档撑爆上下文。
+- 通过攻防结果反哺技术文档，每轮修复后沉淀设计取舍、降级策略、证据缺口和面试防守口径。
 - 通过 JSON 持久化记忆保存多轮迭代版本，配合 JSONL 链路日志支持问题溯源和面试复盘。
 - 前端提供主流程、单点补打磨和模拟面试验收三个入口，适合截图展示完整产品闭环。
 

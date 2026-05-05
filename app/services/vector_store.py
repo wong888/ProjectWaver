@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pymilvus import Collection, CollectionSchema, DataType, FieldSchema, connections, utility
 
@@ -81,6 +81,8 @@ class MilvusVectorStore:
         self.insert_documents(SEED_DOCS)
 
     def insert_documents(self, documents: List[Dict[str, str]]) -> int:
+        if not self.available and not hasattr(self, "collection"):
+            return 0
         if not documents:
             return 0
 
@@ -119,18 +121,23 @@ class MilvusVectorStore:
         self.collection.flush()
         return len(normalized)
 
-    def search(self, query: str, limit: int = 4) -> List[Dict[str, str]]:
+    def search(self, query: str, limit: int = 4, source_prefix: Optional[str] = None) -> List[Dict[str, str]]:
         if not self.available:
+            if source_prefix:
+                return []
             return [{**doc, "score": 0.0, "retrieval_mode": "fallback_seed"} for doc in SEED_DOCS[:limit]]
 
         self.collection.load()
-        results = self.collection.search(
-            data=[embedding_client.embed(query)],
-            anns_field="embedding",
-            param={"metric_type": "COSINE", "params": {}},
-            limit=limit,
-            output_fields=["doc_id", "title", "source", "chunk_index", "content"],
-        )
+        search_kwargs = {
+            "data": [embedding_client.embed(query)],
+            "anns_field": "embedding",
+            "param": {"metric_type": "COSINE", "params": {}},
+            "limit": limit,
+            "output_fields": ["doc_id", "title", "source", "chunk_index", "content"],
+        }
+        if source_prefix:
+            search_kwargs["expr"] = f'source like "{source_prefix}%"'
+        results = self.collection.search(**search_kwargs)
         return [
             {
                 "doc_id": hit.entity.get("doc_id"),
